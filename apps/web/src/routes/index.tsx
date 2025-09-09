@@ -4,21 +4,7 @@ export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
-const TITLE_TEXT = `
- ██████╗ ███████╗████████╗████████╗███████╗██████╗
- ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗
- ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝
- ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗
- ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║
- ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝
-
- ████████╗    ███████╗████████╗ █████╗  ██████╗██╗  ██╗
- ╚══██╔══╝    ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
-    ██║       ███████╗   ██║   ███████║██║     █████╔╝
-    ██║       ╚════██║   ██║   ██╔══██║██║     ██╔═██╗
-    ██║       ███████║   ██║   ██║  ██║╚██████╗██║  ██╗
-    ╚═╝       ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
- `;
+const TITLE_TEXT = `Workflow-gen`;
 
 function HomeComponent() {
 
@@ -27,7 +13,7 @@ function HomeComponent() {
       <pre className="overflow-x-auto font-mono text-sm">{TITLE_TEXT}</pre>
       <div className="grid gap-6">
         <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
+          <h2 className="mb-2 font-medium">Welcome!</h2>
         </section>
       </div>
     </div>
