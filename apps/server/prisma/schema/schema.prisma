@@ -26,22 +26,22 @@ model Workflow {
 
   title       String
   enabled     Boolean  @default(true)
-  nodes       Json
-  connections Json
+  nodes       Json     @default("{}")
+  connections Json     @default("{}")
 
-  webhook     Webhook  @relation(fields: [webhookId], references: [id])
-  webhookId   String   @unique
+  webhook     Webhook?
 }
 
 model Webhook {
-  id        String  @id @default(uuid())
-  title     String
-  method    Methods @default(GET)
-  path      String
-  header    String
-  secret    String?
+  id            String      @id @default(uuid())
+  title         String
+  method        Methods     @default(GET)
+  path          String
+  header        String
+  secret        String?
 
-  workflow  Workflow?
+  workflow      Workflow    @relation(fields: [workflowId], references: [id])
+  workflowId    String      @unique
 }
 
 model Credentials {
