@@ -21,7 +21,7 @@ function RouteComponent() {
     mutationFn: signinUser,
     onSuccess: () => {
       setUser({ email: email });
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/workflows" });
     },
   });
 
@@ -34,7 +34,7 @@ function RouteComponent() {
   }
 
   if (user) {
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/workflows" });
     return <></>;
   }
 
