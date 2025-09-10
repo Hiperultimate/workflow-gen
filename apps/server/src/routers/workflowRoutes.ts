@@ -8,7 +8,7 @@ import z, { type ZodSafeParseResult } from "zod";
 
 const workflowRoutes = Router();
 
-workflowRoutes.post("/workflow", auth, async (req, res) => {
+workflowRoutes.post("/", auth, async (req, res) => {
   const user = req.user;
   const { workflowTitle } = req.body;
 
@@ -36,7 +36,7 @@ workflowRoutes.post("/workflow", auth, async (req, res) => {
     .send({ message: "Workflow successfully created", id: createWorkflow.id });
 });
 
-workflowRoutes.get("/workflow", auth, async (req, res) => {
+workflowRoutes.get("/", auth, async (req, res) => {
   // get all workflow from the current user
   const user = req.user;
   try {
@@ -59,7 +59,7 @@ workflowRoutes.get("/workflow", auth, async (req, res) => {
   }
 });
 
-workflowRoutes.get("/workflow/:id", auth, async (req, res) => {
+workflowRoutes.get("/:id", auth, async (req, res) => {
   // get specific workflow from a user
   const retrieveWorkflowId = req.params.id;
   try {
@@ -84,7 +84,7 @@ workflowRoutes.get("/workflow/:id", auth, async (req, res) => {
   }
 });
 
-workflowRoutes.put("/workflow/:id", auth, async (req, res) => {
+workflowRoutes.put("/:id", auth, async (req, res) => {
   // update existing workflow have id
   const workflowId = req.params.id;
 

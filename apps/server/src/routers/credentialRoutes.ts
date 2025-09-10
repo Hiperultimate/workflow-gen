@@ -6,7 +6,7 @@ import { Router } from "express";
 
 const credentialRoutes = Router();
 
-credentialRoutes.post("/credential", auth ,async (req,res) => {
+credentialRoutes.post("/", auth ,async (req,res) => {
     // create credential for the current user
     const user = req.user;
     const {title, platform, data} = req.body;
@@ -41,7 +41,7 @@ credentialRoutes.post("/credential", auth ,async (req,res) => {
     }
 })
 
-credentialRoutes.delete("/credential/:id", auth, async (req,res) => {
+credentialRoutes.delete("/:id", auth, async (req,res) => {
     // Delete selected credential for the current user
     const selectedId = req.params.id;
     try {
