@@ -1,6 +1,11 @@
 import { useUserSession } from "@/store/user";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { Label } from "radix-ui";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,19 +17,19 @@ export const Route = createFileRoute("/signup")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const user = useUserSession(s => s.user);
+  const user = useUserSession((s) => s.user);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const signup = useMutation({
     mutationFn: signupUser,
-    onSuccess: () => { 
+    onSuccess: () => {
       navigate({ to: "/" });
-    }
-  })
+    },
+  });
 
   function onClickHandler() {
-    toast.promise(signup.mutateAsync({email, password}), {
+    toast.promise(signup.mutateAsync({ email, password }), {
       loading: "Creating your account...",
       success: "Account created successfully!",
       error: (err) => `Signup failed: ${err.message}`,
@@ -35,9 +40,9 @@ function RouteComponent() {
     navigate({ to: "/" });
     return <></>;
   }
-  
+
   return (
-    <div className="bg-background flex justify-center items-center">
+    <div className="bg-graybg flex justify-center items-center">
       <div className="flex flex-col">
         <div className="flex w-full justify-center">
           <span className="text-3xl font-bold">Sign Up</span>
@@ -66,10 +71,7 @@ function RouteComponent() {
             ></input>
           </div>
 
-          <Link
-            className="text-sm hover:underline hover:cursor-pointer"
-            to="/"
-          >
+          <Link className="text-sm hover:underline hover:cursor-pointer" to="/">
             Already have an account?
           </Link>
 

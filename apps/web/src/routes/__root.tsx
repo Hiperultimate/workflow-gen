@@ -11,6 +11,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Theme } from "@radix-ui/themes";
 
 export interface RouterAppContext {}
 
@@ -46,20 +47,22 @@ function RootComponent() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <HeadContent />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          disableTransitionOnChange
-          storageKey="vite-ui-theme"
-        >
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {isFetching ? <Loader /> : <Outlet />}
-          </div>
-          <Toaster closeButton richColors />
-        </ThemeProvider>
-        <TanStackRouterDevtools position="bottom-left" />
+        <Theme>
+          <HeadContent />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            disableTransitionOnChange
+            storageKey="vite-ui-theme"
+          >
+            <div className="grid grid-rows-[auto_1fr] h-svh">
+              <Header />
+              {isFetching ? <Loader /> : <Outlet />}
+            </div>
+            <Toaster closeButton richColors />
+          </ThemeProvider>
+          <TanStackRouterDevtools position="bottom-left" />
+        </Theme>
       </QueryClientProvider>
     </>
   );

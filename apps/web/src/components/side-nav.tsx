@@ -5,17 +5,16 @@ import { Popover } from "radix-ui";
 
 export function SideNav() {
   const navigate = useNavigate();
-  const userSession = useUserSession(s => s.user);
-  const updateUserSession = useUserSession(s => s.updateUserSession);
+  const userSession = useUserSession((s) => s.user);
+  const updateUserSession = useUserSession((s) => s.updateUserSession);
 
-  function signOutHandler() { 
+  function signOutHandler() {
     updateUserSession(null);
   }
 
   function navigateToWorkflows() {
     navigate({ to: "/workflows" });
   }
-
 
   function navigateToCredentials() {
     navigate({ to: "/credentials" });
@@ -63,7 +62,7 @@ export function SideNav() {
             side="top"
             sideOffset={5}
             align="center"
-            className="z-50 w-48 p-4 bg-background rounded-md shadow-lg transition-all"
+            className="z-50 w-48 p-4 bg-graybg rounded-md shadow-lg transition-all"
           >
             <div className="flex flex-col gap-2 ">
               <button
@@ -73,7 +72,7 @@ export function SideNav() {
                 Sign Out
               </button>
             </div>
-            <Popover.Arrow className="fill-background" />
+            <Popover.Arrow className="fill-graybg" />
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>

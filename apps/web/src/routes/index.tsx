@@ -1,7 +1,12 @@
 import { signinUser } from "@/api/signin-post";
 import { useUserSession } from "@/store/user";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { Label } from "radix-ui";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -39,7 +44,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="bg-background flex justify-center items-center">
+    <div className="bg-graybg flex justify-center items-center">
       <div className="flex flex-col">
         <div className="flex w-full justify-center">
           <span className="text-3xl font-bold">Sign In</span>

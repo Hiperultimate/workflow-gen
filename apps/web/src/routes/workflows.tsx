@@ -1,25 +1,25 @@
-import { SideNav } from '@/components/side-nav';
-import { useUserSession } from '@/store/user';
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus } from 'lucide-react';
+import { SideNav } from "@/components/side-nav";
+import { useUserSession } from "@/store/user";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 
-export const Route = createFileRoute('/workflows')({
+export const Route = createFileRoute("/workflows")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-    const navigate = useNavigate();
-    const user = useUserSession((s) => s.user);
-  
-    if (!user) {
-      navigate({ to: "/" });
-      return <></>;
-    }
-  
+  const navigate = useNavigate();
+  const user = useUserSession((s) => s.user);
+
+  if (!user) {
+    navigate({ to: "/" });
+    return <></>;
+  }
+
   return (
     <div className="w-full flex">
       <SideNav />
-      <div className="bg-background h-full w-full px-12 p-8">
+      <div className="bg-graybg h-full w-full px-12 p-8">
         <div className="flex flex-row justify-between">
           <div>
             <div className="text-3xl">Workflows</div>

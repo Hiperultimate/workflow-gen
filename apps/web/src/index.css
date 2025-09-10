@@ -1,10 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 @layer base {
     @theme {
-        --color-background: #302f31;
+        --color-graybg: #302f31;
         --color-item: #474347;
         --color-highlighted: #545357;
         --color-pop: #f96d5c;
