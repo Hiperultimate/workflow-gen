@@ -53,7 +53,7 @@ function RootComponent() {
           <Header />
           {isFetching ? <Loader /> : <Outlet />}
         </div>
-        <Toaster richColors />
+        <Toaster closeButton richColors />
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </>
