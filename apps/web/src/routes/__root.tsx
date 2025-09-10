@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../index.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export interface RouterAppContext {}
 
@@ -34,6 +35,8 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   }),
 });
 
+const queryClient = new QueryClient();
+
 function RootComponent() {
   const isFetching = useRouterState({
     select: (s) => s.isLoading,
@@ -42,20 +45,22 @@ function RootComponent() {
 
   return (
     <>
-      <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
-          {isFetching ? <Loader /> : <Outlet />}
-        </div>
-        <Toaster closeButton richColors />
-      </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
+      <QueryClientProvider client={queryClient}>
+        <HeadContent />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+          storageKey="vite-ui-theme"
+        >
+          <div className="grid grid-rows-[auto_1fr] h-svh">
+            <Header />
+            {isFetching ? <Loader /> : <Outlet />}
+          </div>
+          <Toaster closeButton richColors />
+        </ThemeProvider>
+        <TanStackRouterDevtools position="bottom-left" />
+      </QueryClientProvider>
     </>
   );
 }

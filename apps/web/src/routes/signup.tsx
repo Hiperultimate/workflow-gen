@@ -1,22 +1,40 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Label } from 'radix-ui';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useUserSession } from "@/store/user";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Label } from "radix-ui";
+import { useState } from "react";
+import { toast } from "sonner";
+import { signupUser } from "@/api/signup-post";
 
-export const Route = createFileRoute('/signup')({
+export const Route = createFileRoute("/signup")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const user = useUserSession(s => s.user);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const signup = useMutation({
+    mutationFn: signupUser,
+    onSuccess: () => { 
+      navigate({ to: "/signin" });
+    }
+  })
+
   function onClickHandler() {
-    console.log("Email : ", email);
-    console.log("Password : ", password);
-    toast.success("Submitted");
-    // toast.error("Error")
+    toast.promise(signup.mutateAsync({email, password}), {
+      loading: "Creating your account...",
+      success: "Account created successfully!",
+      error: (err) => `Signup failed: ${err.message}`,
+    });
   }
+
+  if (user) {
+    navigate({ to: "/dashboard" });
+  }
+  
   return (
     <div className="bg-background flex justify-center items-center">
       <div className="flex flex-col">
@@ -47,8 +65,10 @@ function RouteComponent() {
             ></input>
           </div>
 
-          <Link className="text-sm hover:underline hover:cursor-pointer"
-            to="/signin">
+          <Link
+            className="text-sm hover:underline hover:cursor-pointer"
+            to="/signin"
+          >
             Already have an account?
           </Link>
 
