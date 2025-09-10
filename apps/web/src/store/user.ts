@@ -22,12 +22,14 @@ export const useUserSession = create<IUserStore>((set) => ({
         user: null,
       }));
     } else {
-      set((state) => ({
-        user: {
-          ...state.user,
-          ...userData,
-        },
-      }));
+      set((state) => {
+        return {
+          user: {
+            ...state.user,
+            ...userData,
+          },
+        };
+      });
     }
   },
 }));

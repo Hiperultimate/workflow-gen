@@ -9,7 +9,7 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPendingComponent: () => <Loader />,
   context: {},
-  });
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

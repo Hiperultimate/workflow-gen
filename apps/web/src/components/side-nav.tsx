@@ -1,8 +1,14 @@
+import { useUserSession } from "@/store/user";
 import { Home, KeySquare, User } from "lucide-react";
 import { Popover } from "radix-ui";
 
 export function SideNav() {
-  const userSession = { email: "test@gmail.com" };
+  const userSession = useUserSession(s => s.user);
+  const updateUserSession = useUserSession(s => s.updateUserSession);
+
+  function signOutHandler() { 
+    updateUserSession(null);
+  }
 
   return (
     <div className="bg-item w-64 h-full flex flex-col justify-between border-r-1 border-lightborder">
@@ -29,7 +35,7 @@ export function SideNav() {
             <div className="flex items-center gap-4">
               <User className="h-5 w-5" />
               <div className="truncate max-w-[calc(100%-2.5rem)] text-sm">
-                {userSession.email}
+                {userSession && userSession.email}
               </div>
             </div>
           </button>
@@ -43,7 +49,7 @@ export function SideNav() {
             className="z-50 w-48 p-4 bg-background rounded-md shadow-lg transition-all"
           >
             <div className="flex flex-col gap-2 ">
-              <button className="text-sm text-white hover:cursor-pointer w-full">
+              <button className="text-sm text-white hover:cursor-pointer w-full" onClick={() => signOutHandler()}>
                 Sign Out
               </button>
             </div>

@@ -1,14 +1,24 @@
 import { SideNav } from '@/components/side-nav'
-import { createFileRoute } from '@tanstack/react-router'
+import { useUserSession } from '@/store/user';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>
-    <SideNav>
+  const navigate = useNavigate();
+  const user = useUserSession((s) => s.user);
 
-    </SideNav>
-  </div>
+  if (!user) {
+    navigate({ to: "/" });
+    return <></>;
+  }
+
+  return (
+    <div className="w-full flex">
+      <SideNav />
+      <div>Workflows</div>
+    </div>
+  );
 }

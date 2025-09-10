@@ -1,6 +1,6 @@
 import { useUserSession } from "@/store/user";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { Label } from "radix-ui";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ function RouteComponent() {
   const signup = useMutation({
     mutationFn: signupUser,
     onSuccess: () => { 
-      navigate({ to: "/signin" });
+      navigate({ to: "/" });
     }
   })
 
@@ -32,7 +32,8 @@ function RouteComponent() {
   }
 
   if (user) {
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/" });
+    return <></>;
   }
   
   return (
@@ -67,7 +68,7 @@ function RouteComponent() {
 
           <Link
             className="text-sm hover:underline hover:cursor-pointer"
-            to="/signin"
+            to="/"
           >
             Already have an account?
           </Link>
