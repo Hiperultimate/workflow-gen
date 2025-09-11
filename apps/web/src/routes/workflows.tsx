@@ -17,7 +17,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full flex">
+    <div className="w-full flex text-white">
       <SideNav />
       <div className="bg-graybg h-full w-full px-12 p-8">
         <div className="flex flex-row justify-between">

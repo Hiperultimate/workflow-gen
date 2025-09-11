@@ -44,7 +44,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="bg-graybg flex justify-center items-center">
+    <div className="bg-graybg flex justify-center items-center text-white">
       <div className="flex flex-col">
         <div className="flex w-full justify-center">
           <span className="text-3xl font-bold">Sign In</span>
