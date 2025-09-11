@@ -10,10 +10,11 @@ export const signinUser = async ({
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_SERVER_URL}/auth/signin`,
-      { email, password }
+      { email, password },
+      { withCredentials: true }
     );
     return response.data;
-  } catch (error : any) {
+  } catch (error: any) {
     throw new Error(error?.response?.data?.message || "An error occurred");
   }
-}; 
+};

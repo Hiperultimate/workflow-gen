@@ -3,6 +3,9 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
 
 const router = createRouter({
   routeTree,

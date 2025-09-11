@@ -1,15 +1,16 @@
-import {
-  Dialog,
-  Flex,
-  TextField,
-  TextArea,
-  Select,
-} from "@radix-ui/themes";
+import { Dialog, Flex, TextField, TextArea, Select } from "@radix-ui/themes";
 import { SideNav } from "@/components/side-nav";
 import { useUserSession } from "@/store/user";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { MailIcon, Plus, Send, X } from "lucide-react";
 import { useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createCredential } from "@/api/createCredential-post";
+import { getUserCredentials } from "@/api/getUserCredentials-get";
+import { toast } from "sonner";
+import { Platforms, type ICredentials } from "@/types";
+import { removeCredentials } from "@/api/removeCredentials-delete";
+import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/credentials")({
   component: RouteComponent,
@@ -18,17 +19,60 @@ export const Route = createFileRoute("/credentials")({
 function RouteComponent() {
   const navigate = useNavigate();
   const user = useUserSession((s) => s.user);
-  const platform = useRef('email');
-  const title = useRef('');
-  const apiKeys = useRef('');
+  const platform = useRef("Email");
+  const title = useRef("");
+  const apiKeys = useRef("");
+  const queryClient = useQueryClient();
 
   if (!user) {
     navigate({ to: "/" });
     return <></>;
   }
 
-  function onSaveHandler(){
-    console.log("Checking output :", platform.current, title.current, title.current,apiKeys.current);
+  const {
+    data: userCredentials,
+    isLoading,
+    isError,
+  } = useQuery<{ credentials: ICredentials[] } | null>({
+    queryKey: ["credentials"],
+    queryFn: getUserCredentials,
+  });
+
+  const removeCredential = useMutation({
+    mutationFn: removeCredentials,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["credentials"] });
+    },
+  });
+
+  const addCredential = useMutation({
+    mutationFn: createCredential,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["credentials"] });
+    },
+  });
+
+  function removeCredentialHandler(id: string) {
+    toast.promise(removeCredential.mutateAsync(id), {
+      loading: "Removing credentials...",
+      success: "Credential removed successfully!",
+      error: (err) => `Error: ${err.message}`,
+    });
+  }
+
+  function onSaveHandler() {
+    toast.promise(
+      addCredential.mutateAsync({
+        title: title.current,
+        platform: platform.current,
+        data: apiKeys.current,
+      }),
+      {
+        loading: "Saving credentials...",
+        success: "Credential saved successfully!",
+        error: (err) => `Error: ${err.message}`,
+      }
+    );
   }
 
   return (
@@ -61,26 +105,42 @@ function RouteComponent() {
                 <label>
                   <div className="mb-1 font-bold">Platforms</div>
                   {/* Select button */}
-                  <Select.Root size="2" defaultValue={platform.current} onValueChange={(val) => {platform.current = val}}>
+                  <Select.Root
+                    size="2"
+                    defaultValue={platform.current}
+                    onValueChange={(val) => {
+                      platform.current = val;
+                    }}
+                  >
                     <Select.Trigger />
                     <Select.Content>
                       <Select.Group>
                         <Select.Label>Platforms</Select.Label>
-                        <Select.Item value="telegram">Telegram</Select.Item>
-                        <Select.Item value="email">Email</Select.Item>
+                        <Select.Item value="Telegram">Telegram</Select.Item>
+                        <Select.Item value="Email">Email</Select.Item>
                       </Select.Group>
                     </Select.Content>
                   </Select.Root>
                 </label>
                 <label>
                   <div className="mb-1 font-bold">Title</div>
-                  <TextField.Root placeholder="Enter a title for your key" onChange={(val) => {title.current = val.target.value}}>
-                    <TextField.Slot/>
+                  <TextField.Root
+                    placeholder="Enter a title for your key"
+                    onChange={(val) => {
+                      title.current = val.target.value;
+                    }}
+                  >
+                    <TextField.Slot />
                   </TextField.Root>
                 </label>
                 <label>
                   <div className="mb-1 font-bold">API Key</div>
-                  <TextArea placeholder="{json:data}" onChange={(val) => {apiKeys.current = val.target.value}} />
+                  <TextArea
+                    placeholder="{json:data}"
+                    onChange={(val) => {
+                      apiKeys.current = val.target.value;
+                    }}
+                  />
                 </label>
               </Flex>
 
@@ -91,13 +151,50 @@ function RouteComponent() {
                   </button>
                 </Dialog.Close>
                 <Dialog.Close>
-                  <button className="bg-pop px-4 py-2 rounded-md hover:bg-pophover hover:cursor-pointer" onClick={() => onSaveHandler()}>
+                  <button
+                    className="bg-pop px-4 py-2 rounded-md hover:bg-pophover hover:cursor-pointer"
+                    onClick={() => onSaveHandler()}
+                  >
                     Save
                   </button>
                 </Dialog.Close>
               </Flex>
             </Dialog.Content>
           </Dialog.Root>
+        </div>
+
+        <div className="mt-8">
+          {isLoading ? (
+            <Loader size={38} />
+          ) : (
+            userCredentials &&
+            userCredentials.credentials &&
+            userCredentials.credentials.map((item) => {
+              return (
+                <div
+                  className="bg-item rounded-sm border-1 border-lightborder my-2 p-4 flex justify-between items-center"
+                  key={item.id}
+                >
+                  <div className="flex items-center">
+                    {item.platform === Platforms.Email && (
+                      <MailIcon size={34} className="mr-4" />
+                    )}
+                    {item.platform === Platforms.Telegram && (
+                      <Send size={34} className="mr-4" />
+                    )}
+                    <div>
+                      <div className="font-bold text-xl">{item.platform}</div>
+                      <div>{item.title}</div>
+                    </div>
+                  </div>
+                  <X
+                    className="hover:cursor-pointer"
+                    onClick={() => removeCredentialHandler(item.id)}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
