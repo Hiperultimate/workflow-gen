@@ -29,7 +29,7 @@ model Workflow {
   nodes       Json     @default("{}")
   connections Json     @default("{}")
 
-  webhook     Webhook?
+  webhook     Webhook[]
 }
 
 model Webhook {

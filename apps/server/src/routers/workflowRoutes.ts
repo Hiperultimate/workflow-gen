@@ -14,15 +14,17 @@ workflowRoutes.post("/", auth, async (req, res) => {
 
   const validateWorkFlowTitle = z.string().min(1).safeParse(workflowTitle);
 
-  if (!validateWorkFlowTitle.success) {
+  if (!validateWorkFlowTitle.success || !user) {
     return res.status(400).send({ message: "Invalid title" });
   }
 
   const validTitle = validateWorkFlowTitle.data;
 
+  console.log("Checking user ID ; ", user?.id, validTitle);
   const createWorkflow = await prisma.workflow.create({
     data: {
       title: validTitle,
+      // userId: user.id,
       User: {
         connect: {
           id: user?.id,
@@ -85,89 +87,57 @@ workflowRoutes.get("/:id", auth, async (req, res) => {
 });
 
 workflowRoutes.put("/:id", auth, async (req, res) => {
-  // update existing workflow have id
   const workflowId = req.params.id;
+  const { title, enabled, nodes, connections, webhooks } = req.body;
 
-  const { title, enabled, nodes, connections, webhook } = req.body;
+  const validateWebhooks = z.array(validWebHook).safeParse(webhooks);
+  if (!validateWebhooks.success) {
+    return res.status(400).send({ message: "Invalid webhook data provided" });
+  }
+
+  const newWebhooks = validateWebhooks.data;
 
   const existingWorkflow = await prisma.workflow.findUnique({
-    where: {
-      id: workflowId,
-    },
-    select: {
-      id: true,
-      webhook: true,
-    },
+    where: { id: workflowId },
+    include: { webhook: true },
   });
 
   if (!existingWorkflow) {
     return res.status(404).send({ message: "Workflow not found" });
   }
 
-  const validateNewWorkflowDetails = workflowPut.safeParse({
-    title,
-    enabled,
-    nodes,
-    connections,
-  });
-  if (!validateNewWorkflowDetails.success) {
-    return res
-      .status(404)
-      .send({ message: "Invalid workflow details provided" });
-  }
-  const newWorkflowDetails = validateNewWorkflowDetails.data;
+  const transaction = await prisma.$transaction(async (prisma) => {
+    // Delete all existing webhooks associated with the workflow
+    await prisma.webhook.deleteMany({
+      where: { workflowId: workflowId },
+    });
 
-  let webhookExist = webhook !== undefined ? true : false;
+    const createdWebhooks = await prisma.webhook.createMany({
+      data: newWebhooks.map((wh) => ({
+        ...wh,
+        path: `webhook/${existingWorkflow.id}`,
+        workflowId: workflowId,
+      })),
+    });
 
-  let validateWebhook: ZodSafeParseResult<z.infer<typeof validWebHook>> | null =
-    null;
-  if (webhookExist) {
-    validateWebhook = validWebHook.safeParse(webhook);
-  }
-
-  const newWebhookData = validateWebhook?.data;
-
-  const existingWebhook = existingWorkflow.webhook;
-
-  const updateWorkflow = await prisma.workflow.update({
-    where: {
-      id: workflowId,
-    },
-    data: {
-      title: newWorkflowDetails.title,
-      enabled: newWorkflowDetails.enabled,
-      nodes: newWorkflowDetails.nodes as InputJsonValue,
-      connections: newWorkflowDetails.connections as InputJsonValue,
-      ...(existingWebhook !== null &&
-        newWebhookData !== undefined && {
-          webhook: {
-            disconnect: true,
-            create: {
-              header: newWebhookData.header,
-              path: newWebhookData.path || `webhook/${existingWorkflow.id}`,
-              title: newWebhookData.title,
-              method: newWebhookData.method,
-              secret: newWebhookData.secret,
-            },
-          },
-        }),
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (existingWebhook) {
-    await prisma.webhook.delete({
-      where: {
-        id: existingWebhook.id,
+    const updatedWorkflow = await prisma.workflow.update({
+      where: { id: workflowId },
+      data: {
+        title,
+        enabled,
+        nodes: nodes as InputJsonValue,
+        connections: connections as InputJsonValue,
       },
     });
-  }
 
-  return res
-    .status(200)
-    .send({ message: "Updated successfully", workflowId: updateWorkflow.id });
+    return { updatedWorkflow, createdWebhooks };
+  });
+
+  return res.status(200).send({
+    message: "Workflow and webhooks updated successfully",
+    workflowId: transaction.updatedWorkflow.id,
+    webhooks: transaction.createdWebhooks,
+  });
 });
 
 export default workflowRoutes;
