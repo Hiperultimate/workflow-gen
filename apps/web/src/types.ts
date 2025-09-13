@@ -11,11 +11,17 @@ export type ICredentials = {
 }
 
 export type IWorkflows = {
-  workflows: {
-    id: string;
-    title: string;
-    enabled: boolean;
-    nodes: string;
-    connections: string;
-  }[];
+  workflows: IWorkflow[];
+};
+
+export type IGetSingleWorkflow = {
+  workflow: IWorkflow
+}
+
+type IWorkflow = {
+  id: string;
+  title: string;
+  enabled: boolean;
+  nodes: string;
+  connections: string;
 };
