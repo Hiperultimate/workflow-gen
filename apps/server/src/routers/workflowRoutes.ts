@@ -1,10 +1,9 @@
 import prisma from "@/db";
 import { auth } from "@/middleware/auth";
 import { validWebHook } from "@/utils/schemas/webhookSchema";
-import { workflowPut } from "@/utils/schemas/workflowSchema";
 import type { InputJsonValue } from "@prisma/client/runtime/library";
 import { Router } from "express";
-import z, { type ZodSafeParseResult } from "zod";
+import z from "zod";
 
 const workflowRoutes = Router();
 

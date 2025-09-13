@@ -1,12 +1,16 @@
 import { createWorkflow } from "@/api/createWorkflow-post";
 import { SideNav } from "@/components/side-nav";
 import { useUserSession } from "@/store/user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Popover } from "radix-ui";
 import { toast } from "sonner";
 import { useRef } from "react";
+import { userWorkflows } from "@/api/userWorkflows-get";
+import Loader from "@/components/loader";
+import type { IWorkflows } from "@/types";
+import { Switch } from "@radix-ui/themes";
 
 export const Route = createFileRoute("/workflows")({
   component: RouteComponent,
@@ -15,17 +19,26 @@ export const Route = createFileRoute("/workflows")({
 function RouteComponent() {
   const navigate = useNavigate();
   const user = useUserSession((s) => s.user);
-  const title = useRef('');
+  const title = useRef("");
 
   if (!user) {
     navigate({ to: "/" });
     return <></>;
   }
 
+  const {
+    data: allWorkflows,
+    isLoading,
+    isError,
+  } = useQuery<IWorkflows>({
+    queryKey: ["workflows"],
+    queryFn: userWorkflows,
+  });
+
   const initiateWorkflowCreation = useMutation({
     mutationFn: createWorkflow,
     onSuccess: (data) => {
-      navigate({ to: `/workflows/${data.id}` });
+      navigate({ to: `/workflowDetails/${data.id}` });
     },
   });
 
@@ -37,6 +50,12 @@ function RouteComponent() {
       error: (err) => `Error: ${err.message}`,
     });
   }
+
+  function openExistingWorkflowHandler(id: string) {
+    navigate({ to: `/workflowDetails/${id}` });
+  }
+
+  console.log("Checking workflow data : ", allWorkflows);
 
   return (
     <div className="w-full flex text-white">
@@ -77,7 +96,7 @@ function RouteComponent() {
                   type="text"
                   placeholder="Enter title for your new workflow"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                  onChange={(e) => title.current = e.target.value}
+                  onChange={(e) => (title.current = e.target.value)}
                 />
 
                 <button
@@ -93,6 +112,40 @@ function RouteComponent() {
               </Popover.Content>
             </Popover.Portal>
           </Popover.Root>
+        </div>
+
+        <div className="mt-8">
+          {isLoading ? (
+            <Loader size={38} />
+          ) : (
+            allWorkflows &&
+            allWorkflows.workflows &&
+            allWorkflows.workflows.map((item) => {
+              return (
+                <div
+                  className="bg-item rounded-sm border-1 border-lightborder my-2 p-4 flex justify-between items-center hover:cursor-pointer hover:bg-white/30"
+                  onClick={() => {
+                    openExistingWorkflowHandler(item.id);
+                  }}
+                  key={item.id}
+                >
+                  <div className="flex items-center">
+                    <div>{item.title}</div>
+                  </div>
+                  <div className="font-bold flex items-center">
+                    <span className="text-gray-400 text-sm mr-2">
+                      {item.enabled ? "Active" : "Inactive"}
+                    </span>
+                    <Switch color="orange" checked={item.enabled} />
+                  </div>
+                  {/* <X
+                    className="hover:cursor-pointer"
+                    onClick={() => removeWorkflowHandler(item.id)}
+                  /> */}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

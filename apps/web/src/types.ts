@@ -9,3 +9,13 @@ export type ICredentials = {
   platform: Platforms
   id: string,
 }
+
+export type IWorkflows = {
+  workflows: {
+    id: string;
+    title: string;
+    enabled: boolean;
+    nodes: string;
+    connections: string;
+  }[];
+};
