@@ -11,7 +11,3 @@
         --color-lightborder: #515c65;
     }
 }
-
-.dark .react-flow__pane {
-    background-color: #302f31;
-}
