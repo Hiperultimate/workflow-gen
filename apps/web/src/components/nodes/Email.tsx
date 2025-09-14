@@ -1,30 +1,27 @@
 import { Mail, SquarePen, Trash2 } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 
 function EmailNode() {
-  const fromEmailInput = useRef("");
-  const toEmailInput = useRef("");
-  const subjectInput = useRef("");
-  const htmlMailInput = useRef("");
-
   // New saved state
   const fromEmail = useRef("");
   const toEmail = useRef("");
   const subject = useRef("");
   const htmlMail = useRef("");
+  
+  const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
+  const [toEmailInput, setToEmailInput] = useState(toEmail.current);
+  const [subjectInput, setSubjectInput] = useState(subject.current);
+  const [htmlMailInput, setHtmlMailInput] = useState(htmlMail.current);
 
-  //   const onChange = useCallback((evt) => {
-  //     console.log(evt.target.value);
-  //   }, []);
   const editEmailNodeHandler = useCallback(() => {
-    fromEmail.current = fromEmailInput.current;
-    toEmail.current = toEmailInput.current;
-    subject.current = subjectInput.current;
-    htmlMail.current = htmlMailInput.current;
+    fromEmail.current = fromEmailInput;
+    toEmail.current = toEmailInput;
+    subject.current = subjectInput;
+    htmlMail.current = htmlMailInput;
     console.log(
       "Checking values :",
 
@@ -67,8 +64,9 @@ function EmailNode() {
               <div className="mb-1 font-bold">From Email</div>
               <TextField.Root
                 placeholder="admin@example.com"
+                value={fromEmailInput}
                 onChange={(e) => {
-                  fromEmailInput.current = e.target.value;
+                  setFromEmailInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
@@ -79,8 +77,9 @@ function EmailNode() {
               <div className="mb-1 font-bold">To Email</div>
               <TextField.Root
                 placeholder="info@example.com"
+                value={toEmailInput}
                 onChange={(e) => {
-                  toEmailInput.current = e.target.value;
+                  setToEmailInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
@@ -91,8 +90,9 @@ function EmailNode() {
               <div className="mb-1 font-bold">Subject Email</div>
               <TextField.Root
                 placeholder="My subject line"
+                value={subjectInput}
                 onChange={(e) => {
-                  subjectInput.current = e.target.value;
+                  setSubjectInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
@@ -103,8 +103,9 @@ function EmailNode() {
               <div className="mb-1 font-bold">HTML</div>
               <TextArea
                 placeholder="Enter HTML content here"
+                value={htmlMailInput}
                 onChange={(e) => {
-                  htmlMailInput.current = e.target.value;
+                  setHtmlMailInput(e.target.value);
                 }}
                 className="w-full p-2 border rounded-md bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

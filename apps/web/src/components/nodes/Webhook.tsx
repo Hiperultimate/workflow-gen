@@ -1,5 +1,5 @@
 import { SquarePen, Trash2, Webhook } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position } from "@xyflow/react";
@@ -8,15 +8,16 @@ import { v4 as uuid } from 'uuid';
 
 function WebhookNode() {
   const { id } = useParams({ strict: false });
-  const methodRefInput = useRef("");
-  const webhookUrlInput = useRef("");
-
   const webhookUrl = useRef("");
   const method = useRef("GET");
 
+  const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
+  const [methodInput, setMethodInput] = useState(method.current);
+
+
   const editWebhookNodeHandler = useCallback(() => {
-    webhookUrl.current = webhookUrlInput.current;
-    method.current = methodRefInput.current;
+    webhookUrl.current = webhookUrlInput;
+    method.current = methodInput;
     console.log("Edit node");
   }, []);
 
@@ -53,9 +54,9 @@ function WebhookNode() {
               <Select.Root
                 size="2"
                 onValueChange={(value) => {
-                  methodRefInput.current = value;
+                  setMethodInput( value);
                 }}
-                defaultValue={method.current}
+                defaultValue={methodInput}
               >
                 <Select.Trigger placeholder="Select HTTP method..." />
                 <Select.Content position="popper" side="bottom">
@@ -75,9 +76,9 @@ function WebhookNode() {
               <div className="mb-1 font-bold">Webhook URL</div>
               <TextField.Root
                 placeholder="Enter Webhook URL"
-                value={webhookUrl.current}
+                value={webhookUrlInput}
                 onChange={(e) => {
-                  webhookUrlInput.current = e.target.value;
+                  setWebhookUrlInput( e.target.value);
                 }}
               >
                 <TextField.Slot />

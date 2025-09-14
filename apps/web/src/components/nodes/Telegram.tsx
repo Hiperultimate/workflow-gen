@@ -1,15 +1,18 @@
 import { Send, SquarePen, Trash2 } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Handle, Position } from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 
 function TelegramNode() {
-  const chatIdRef = useRef("");
+  const chatId = useRef("");
+
+  const [chatIdRef, setChatIdRef] = useState(chatId.current);
 
   const editTelegramNodeHandler = useCallback(() => {
-    console.log("Edit node with ChatID:", chatIdRef.current);
+    chatId.current = chatIdRef;
+    console.log("Edit node with ChatID:", chatIdRef);
   }, []);
 
   const deleteTelegramNodeHandler = useCallback(() => {
@@ -44,8 +47,9 @@ function TelegramNode() {
               <div className="mb-1 font-bold">Chat ID</div>
               <TextField.Root
                 placeholder="Enter Chat ID"
+                value={chatIdRef}
                 onChange={(e) => {
-                  chatIdRef.current = e.target.value;
+                  setChatIdRef(e.target.value);
                 }}
               >
                 <TextField.Slot />
