@@ -4,14 +4,19 @@ import NodeWrapper from "./NodeWrapper";
 import { Handle, Position } from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
+import type { ICredentials } from "@/types";
 
 function TelegramNode() {
+  const selectedCred = useRef<ICredentials | null>(null);
   const chatId = useRef("");
 
+  const [selectedCredential, setSelectedCredential] =
+    useState<ICredentials | null>(null);
   const [chatIdRef, setChatIdRef] = useState(chatId.current);
 
   const editTelegramNodeHandler = useCallback(() => {
-    chatId.current = chatIdRef;
+      chatId.current = chatIdRef;
+      selectedCred.current = selectedCredential;
     console.log("Edit node with ChatID:", chatIdRef);
   }, []);
 
@@ -19,6 +24,12 @@ function TelegramNode() {
     console.log("Delete node");
   }, []);
 
+  const onSelectedCredentialChange = useCallback(
+    (credential: ICredentials | null) => {
+      setSelectedCredential(credential);
+    },
+    []
+  );
   return (
     <NodeWrapper>
       <Dialog.Root>
@@ -37,9 +48,8 @@ function TelegramNode() {
           <Flex direction="column" gap="3">
             <label>
               <SelectCredential
-                onSelect={() => {
-                  console.log("Callback");
-                }}
+                selectedCredential={selectedCredential}
+                onSelect={onSelectedCredentialChange}
               />
             </label>
 

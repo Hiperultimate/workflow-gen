@@ -4,37 +4,37 @@ import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position } from "@xyflow/react";
 import SelectCredential from "../select-credential";
+import type { ICredentials } from "@/types";
 
 function EmailNode() {
   // New saved state
+  const selectedCred = useRef<ICredentials | null>(null);
   const fromEmail = useRef("");
   const toEmail = useRef("");
   const subject = useRef("");
   const htmlMail = useRef("");
-  
+
+  const [selectedCredential, setSelectedCredential] = useState<ICredentials | null>(null);
   const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
   const [htmlMailInput, setHtmlMailInput] = useState(htmlMail.current);
 
   const editEmailNodeHandler = useCallback(() => {
+    selectedCred.current = selectedCredential;
     fromEmail.current = fromEmailInput;
     toEmail.current = toEmailInput;
     subject.current = subjectInput;
     htmlMail.current = htmlMailInput;
-    console.log(
-      "Checking values :",
-
-      fromEmail.current,
-      toEmail.current,
-      subject.current,
-      htmlMail.current
-    );
   }, []);
 
   const deleteEmailNodeHandler = useCallback(() => {
     console.log("Delete node");
   }, []);
+
+  const onSelectedCredentialChange = useCallback((credential: ICredentials | null) => {
+    setSelectedCredential(credential);
+   }, [])
 
   return (
     <NodeWrapper>
@@ -54,9 +54,8 @@ function EmailNode() {
           <Flex direction="column" gap="3">
             <label>
               <SelectCredential
-                onSelect={() => {
-                  console.log("Callback");
-                }}
+                selectedCredential={selectedCredential}
+                onSelect={onSelectedCredentialChange}
               />
             </label>
 

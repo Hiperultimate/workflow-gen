@@ -2,29 +2,45 @@ import { useQuery } from "@tanstack/react-query";
 import { Select, Flex, Text } from "@radix-ui/themes";
 import { getUserCredentials } from "@/api/getUserCredentials-get";
 import type { ICredentials } from "@/types";
+import { useCallback } from "react";
 
-function SelectCredential({ onSelect }: { onSelect: (value : string) => void }) {
-    const { data, isLoading, isError, error } = useQuery<{
-      credentials: ICredentials[];
-    }>({
-      queryKey: ["credentials"],
-      queryFn: getUserCredentials,
-    });
+function SelectCredential({
+  selectedCredential,
+  onSelect,
+}: {
+  selectedCredential: ICredentials | null;
+  onSelect: (value: ICredentials | null) => void;
+}) {
+  const { data, isLoading, isError, error } = useQuery<{
+    credentials: ICredentials[];
+  }>({
+    queryKey: ["credentials"],
+    queryFn: getUserCredentials,
+  });
 
   // Filter credentials based on search input
   const filteredCredentials =
     data?.credentials.filter(
       (credential) =>
-        credential.title.toLowerCase() ||
-        credential.platform.toLowerCase()
+        credential.title.toLowerCase() || credential.platform.toLowerCase()
     ) || [];
+
+  const onSelectChange = useCallback((id: string) => {
+    if (!data) {
+      console.log("Something went while selecting credentials...");
+      return;
+    }
+    const getCrendentialData = data.credentials.find((item) => item.id === id);
+    onSelect(getCrendentialData || null);
+  }, []);
 
   return (
     <Flex direction="column" gap="2">
       <Text className="font-bold">Select Credential</Text>
       <Select.Root
         size="2"
-        onValueChange={(value) => onSelect(value)}
+        onValueChange={(value) => onSelectChange(value)}
+        defaultValue={selectedCredential?.id || ""}
       >
         <Select.Trigger placeholder="Search credentials..." />
         <Select.Content>
