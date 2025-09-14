@@ -1,13 +1,14 @@
 import { Send, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 import type { ICredentials } from "@/types";
 
-function TelegramNode() {
+function TelegramNode({ id }: { id: string }) {
   const selectedCred = useRef<ICredentials | null>(null);
+  const { deleteElements } = useReactFlow();
   const chatId = useRef("");
 
   const [selectedCredential, setSelectedCredential] =
@@ -15,14 +16,17 @@ function TelegramNode() {
   const [chatIdRef, setChatIdRef] = useState(chatId.current);
 
   const editTelegramNodeHandler = useCallback(() => {
-      chatId.current = chatIdRef;
-      selectedCred.current = selectedCredential;
+    chatId.current = chatIdRef;
+    selectedCred.current = selectedCredential;
     console.log("Edit node with ChatID:", chatIdRef);
   }, []);
 
-  const deleteTelegramNodeHandler = useCallback(() => {
-    console.log("Delete node");
-  }, []);
+  const deleteTelegramNodeHandler = useCallback(
+    (nodeId: string) => {
+      deleteElements({ nodes: [{ id: nodeId }] });
+    },
+    [deleteElements]
+  );
 
   const onSelectedCredentialChange = useCallback(
     (credential: ICredentials | null) => {
@@ -96,7 +100,7 @@ function TelegramNode() {
         <Trash2
           size={15}
           color="#f96d5c"
-          onClick={() => deleteTelegramNodeHandler()}
+          onClick={() => deleteTelegramNodeHandler(id)}
         />
       </div>
     </NodeWrapper>

@@ -25,3 +25,5 @@ type IWorkflow = {
   nodes: string;
   connections: string;
 };
+
+export type NodeType = "telegramNode" | "emailNode" | "webhookNode";

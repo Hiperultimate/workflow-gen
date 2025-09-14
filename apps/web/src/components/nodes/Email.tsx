@@ -2,11 +2,13 @@ import { Mail, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials } from "@/types";
 
-function EmailNode() {
+function EmailNode({ id }: { id: string }) {
+    const { deleteElements } = useReactFlow();
+  
   // New saved state
   const selectedCred = useRef<ICredentials | null>(null);
   const fromEmail = useRef("");
@@ -14,7 +16,8 @@ function EmailNode() {
   const subject = useRef("");
   const htmlMail = useRef("");
 
-  const [selectedCredential, setSelectedCredential] = useState<ICredentials | null>(null);
+  const [selectedCredential, setSelectedCredential] =
+    useState<ICredentials | null>(null);
   const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
@@ -28,13 +31,19 @@ function EmailNode() {
     htmlMail.current = htmlMailInput;
   }, []);
 
-  const deleteEmailNodeHandler = useCallback(() => {
-    console.log("Delete node");
-  }, []);
+  const deleteEmailNodeHandler = useCallback(
+    (nodeId: string) => {
+      deleteElements({ nodes: [{ id: nodeId }] });
+    },
+    [deleteElements]
+  );
 
-  const onSelectedCredentialChange = useCallback((credential: ICredentials | null) => {
-    setSelectedCredential(credential);
-   }, [])
+  const onSelectedCredentialChange = useCallback(
+    (credential: ICredentials | null) => {
+      setSelectedCredential(credential);
+    },
+    []
+  );
 
   return (
     <NodeWrapper>
@@ -140,7 +149,7 @@ function EmailNode() {
         <Trash2
           size={15}
           color="#f96d5c"
-          onClick={() => deleteEmailNodeHandler()}
+          onClick={() => deleteEmailNodeHandler(id)}
         />
       </div>
     </NodeWrapper>

@@ -22,6 +22,10 @@ import TelegramNode from "./nodes/Telegram";
 import CustomEdge from "./edges/edge";
 import EmailNode from "./nodes/Email";
 import WebhookNode from "./nodes/Webhook";
+import { Dialog } from "@radix-ui/themes";
+import AddNode from "./add-node";
+import type { NodeType } from "@/types";
+import { v4 as uuid } from "uuid";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
@@ -34,8 +38,6 @@ const edgeTypes = {
 };
 
 const initialNodes: Node[] = [
-  { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
-  { id: "2", data: { label: "Node 2" }, position: { x: 5, y: 100 } },
   {
     id: "3",
     type: "telegramNode",
@@ -66,10 +68,11 @@ const fitViewOptions: FitViewOptions = {
 
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: true,
+  type: "custom-edge",
 };
 
 const onNodeDrag: OnNodeDrag = (_, node) => {
-  console.log("drag event", node.data);
+  // console.log("drag event", node.data);
 };
 
 function Flow() {
@@ -78,7 +81,7 @@ function Flow() {
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
+    [setEdges]
   );
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
@@ -87,6 +90,29 @@ function Flow() {
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges]
+  );
+
+  const addNode = useCallback(
+    (newNode: { type: NodeType }) => {
+      const newId = uuid();
+      const newPosition = {
+        x: 10, // Consistent x-coordinate like initialNodes
+        y: Math.max(...nodes.map((node) => node.position.y), 0) + 100, // Adding node after the bottom-most node
+      };
+
+      const nodeToAdd: Node = {
+        id: newId,
+        type: newNode.type,
+        position: newPosition,
+        // data: { value: 123 }, // (may come handy?)
+        data: { id: newId},
+      };
+
+      setNodes((nds) => [...nds, nodeToAdd]);
+
+      console.log("Node added! :", newNode);
+    },
+    [nodes, setNodes]
   );
 
   return (
@@ -105,10 +131,21 @@ function Flow() {
       colorMode="dark"
     >
       <Panel position="top-left">
-        {/* Add logic to select form which user can type and get the required node they want to make on pressing this button */}
-        <button className="bg-highlighted p-4 rounded-md border-2 hover:cursor-pointer hover:bg-white/30">
-          <Plus />
-        </button>
+        <Dialog.Root>
+          <Dialog.Trigger>
+            <button className="bg-highlighted p-4 rounded-md border-2 hover:cursor-pointer hover:bg-white/30">
+              <Plus />
+            </button>
+          </Dialog.Trigger>
+
+          <Dialog.Content>
+            <Dialog.Title>Node Selection</Dialog.Title>
+            <Dialog.Description mb="4">
+              Select a Node to add to your workflow
+            </Dialog.Description>
+            <AddNode onSelect={addNode} />
+          </Dialog.Content>
+        </Dialog.Root>
       </Panel>
       <Background bgColor="#302f31" variant={BackgroundVariant.Dots} />
       <Controls />

@@ -2,18 +2,19 @@ import { SquarePen, Trash2, Webhook } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { useParams } from "@tanstack/react-router";
 import { v4 as uuid } from 'uuid';
 
-function WebhookNode() {
-  const { id } = useParams({ strict: false });
+function WebhookNode({ id }: { id: string }) {
+  const { id: workflowId } = useParams({ strict: false });
+    const { deleteElements } = useReactFlow();
+  
   const webhookUrl = useRef("");
   const method = useRef("GET");
 
   const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
   const [methodInput, setMethodInput] = useState(method.current);
-
 
   const editWebhookNodeHandler = useCallback(() => {
     webhookUrl.current = webhookUrlInput;
@@ -21,15 +22,18 @@ function WebhookNode() {
     console.log("Edit node");
   }, []);
 
-  const deleteWebhookNodeHandler = useCallback(() => {
-    console.log("Delete node");
-  }, []);
+  const deleteWebhookNodeHandler = useCallback(
+    (nodeId: string) => {
+      deleteElements({ nodes: [{ id: nodeId }] });
+    },
+    [deleteElements]
+  );
 
-  const generateWebhookUrl = useCallback(() => { 
+  const generateWebhookUrl = useCallback(() => {
     if (webhookUrl.current.trim().length > 0) return;
-    const newUuid = uuid(); 
-    webhookUrl.current = `webhook/${id}/${newUuid}`;
-  }, [])
+    const newUuid = uuid();
+    webhookUrl.current = `webhook/${workflowId}/${newUuid}`;
+  }, []);
 
   generateWebhookUrl();
 
@@ -54,7 +58,7 @@ function WebhookNode() {
               <Select.Root
                 size="2"
                 onValueChange={(value) => {
-                  setMethodInput( value);
+                  setMethodInput(value);
                 }}
                 defaultValue={methodInput}
               >
@@ -78,7 +82,7 @@ function WebhookNode() {
                 placeholder="Enter Webhook URL"
                 value={webhookUrlInput}
                 onChange={(e) => {
-                  setWebhookUrlInput( e.target.value);
+                  setWebhookUrlInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
@@ -115,7 +119,7 @@ function WebhookNode() {
         <Trash2
           size={15}
           color="#f96d5c"
-          onClick={() => deleteWebhookNodeHandler()}
+          onClick={() => deleteWebhookNodeHandler(id)}
         />
       </div>
     </NodeWrapper>
