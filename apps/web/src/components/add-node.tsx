@@ -9,10 +9,10 @@ interface AddNodeProps {
 function AddNode({ onSelect }: AddNodeProps) {
   const [filter, setFilter] = useState("");
 
-  const nodeOptions: { value: NodeType; label: string }[] = [
-    { value: "telegramNode", label: "Telegram Node" },
-    { value: "emailNode", label: "Email Node" },
-    { value: "webhookNode", label: "Webhook Node" },
+  const nodeOptions: { value: NodeType; label: string, id: string }[] = [
+    { value: "telegramNode", label: "Telegram Node", id: "1"},
+    { value: "emailNode", label: "Email Node", id: "2"},
+    { value: "webhookNode", label: "Webhook Node", id: "3"},
   ];
 
   // Filter nodes based on input
@@ -35,9 +35,8 @@ function AddNode({ onSelect }: AddNodeProps) {
       <div className="flex flex-col gap-2">
         {filteredNodes.length > 0 ? (
           filteredNodes.map((node) => (
-            <Dialog.Close>
+            <Dialog.Close key={node.id}>
               <div
-                key={node.value}
                 className="bg-highlighted w-full border-1 border-lightborder rounded-sm p-4 text-center text-sm font-medium transition-colors hover:bg-white/30 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-pop"
                 onClick={() => onSelect({ type: node.value })}
               >
