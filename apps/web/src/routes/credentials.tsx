@@ -2,7 +2,7 @@ import { Dialog, Flex, TextField, TextArea, Select } from "@radix-ui/themes";
 import { SideNav } from "@/components/side-nav";
 import { useUserSession } from "@/store/user";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { MailIcon, Plus, Send, X } from "lucide-react";
+import { Brain, MailIcon, Plus, Send, X } from "lucide-react";
 import { useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCredential } from "@/api/createCredential-post";
@@ -118,6 +118,7 @@ function RouteComponent() {
                         <Select.Label>Platforms</Select.Label>
                         <Select.Item value="Telegram">Telegram</Select.Item>
                         <Select.Item value="Email">Email</Select.Item>
+                        <Select.Item value="Gemini">Gemini</Select.Item>
                       </Select.Group>
                     </Select.Content>
                   </Select.Root>
@@ -181,6 +182,9 @@ function RouteComponent() {
                     )}
                     {item.platform === Platforms.Telegram && (
                       <Send size={34} className="mr-4" />
+                    )}
+                    {item.platform === Platforms.Gemini && (
+                      <Brain size={34} className="mr-4" />
                     )}
                     <div>
                       <div className="font-bold text-xl">{item.platform}</div>

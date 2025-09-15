@@ -57,6 +57,7 @@ model Credentials {
 enum Platform {
   Telegram
   Email
+  Gemini
 }
 
 enum Methods {

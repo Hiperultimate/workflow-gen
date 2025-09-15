@@ -1,24 +1,25 @@
 import type { Edge, Node } from "@xyflow/react";
 
 export enum Platforms {
-    Email = "Email",
-    Telegram = "Telegram"
+  Email = "Email",
+  Telegram = "Telegram",
+  Gemini = "Gemini",
 }
 
 export type ICredentials = {
-  data : string,
-  title: string,
-  platform: Platforms
-  id: string,
-}
+  data: string;
+  title: string;
+  platform: Platforms;
+  id: string;
+};
 
 export type IWorkflows = {
   workflows: IWorkflow[];
 };
 
 export type IGetSingleWorkflow = {
-  workflow: IWorkflow
-}
+  workflow: IWorkflow;
+};
 
 type IWorkflow = {
   id: string;
