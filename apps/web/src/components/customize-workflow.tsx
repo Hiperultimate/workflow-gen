@@ -30,22 +30,18 @@ import type { IGetSingleWorkflow } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { saveWorkflow } from "@/api/saveWorkflow-put";
 import { toast } from "sonner";
+import AiAgent from "./nodes/AiAgent";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
   emailNode: EmailNode,
   webhookNode: WebhookNode,
+  aiAgent : AiAgent
 };
 
 const edgeTypes = {
   "custom-edge": CustomEdge,
 };
-
-const initialNodes: Node[] = [];
-
-const initialEdges: Edge[] = [
-  // { id: "e1-2", source: "1", target: "2", type: "custom-edge" },
-];
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,

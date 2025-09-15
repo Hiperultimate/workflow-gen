@@ -9,10 +9,11 @@ interface AddNodeProps {
 function AddNode({ onSelect }: AddNodeProps) {
   const [filter, setFilter] = useState("");
 
-  const nodeOptions: { value: NodeType; label: string, id: string }[] = [
-    { value: "telegramNode", label: "Telegram Node", id: "1"},
-    { value: "emailNode", label: "Email Node", id: "2"},
-    { value: "webhookNode", label: "Webhook Node", id: "3"},
+  const nodeOptions: { value: NodeType; label: string; id: string }[] = [
+    { value: "telegramNode", label: "Telegram Node", id: "1" },
+    { value: "emailNode", label: "Email Node", id: "2" },
+    { value: "webhookNode", label: "Webhook Node", id: "3" },
+    { value: "aiAgent", label: "AI Agent", id: "4" },
   ];
 
   // Filter nodes based on input

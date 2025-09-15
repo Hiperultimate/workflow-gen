@@ -31,8 +31,10 @@ type IWorkflow = {
 export enum NodeTypes {
   Telegram = "telegramNode",
   Email = "emailNode",
-  Webhook = "webhookNode"
+  Webhook = "webhookNode",
+  AiAgent = "aiAgent",
 }
+
 export type NodeType = `${NodeTypes}`;
 
 export type ICustomNode = Omit<Node, "data"> & {
