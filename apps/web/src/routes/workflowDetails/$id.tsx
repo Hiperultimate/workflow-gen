@@ -23,23 +23,12 @@ function RouteComponent() {
     queryFn: async () => getWorkflowById(id),
   });
 
-  console.log("Getting workflow data : ", data);
-
   return (
     <div className="flex ">
       <SideNav />
 
-      <div className="grid grid-rows-[72px_1fr] w-full">
-        <div className="bg-item w-full p-4 flex justify-between items-center">
-          <div>{data?.workflow.title}</div>
-          <button className="bg-pop px-4 py-2 hover:bg-pophover hover:cursor-pointer rounded-md">
-            Save
-          </button>
-        </div>
-        <div className="bg-graybg font-black">
-          <Flow />
-        </div>
-      </div>
+      {isLoading && <div>Loading...</div>}
+      {data && <Flow workflowData={data} />}
     </div>
   );
 }

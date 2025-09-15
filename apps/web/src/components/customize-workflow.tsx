@@ -26,6 +26,7 @@ import { Dialog } from "@radix-ui/themes";
 import AddNode from "./add-node";
 import type { NodeType } from "@/types";
 import { v4 as uuid } from "uuid";
+import type { IGetSingleWorkflow } from "@/types";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
@@ -37,29 +38,10 @@ const edgeTypes = {
   "custom-edge": CustomEdge,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: "3",
-    type: "telegramNode",
-    position: { x: 10, y: 200 },
-    data: { value: 123 },
-  },
-  {
-    id: "4",
-    type: "emailNode",
-    position: { x: 10, y: 300 },
-    data: { value: 123 },
-  },
-  {
-    id: "5",
-    type: "webhookNode",
-    position: { x: 10, y: 400 },
-    data: { value: 123 },
-  },
-];
+const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", type: "custom-edge" },
+  // { id: "e1-2", source: "1", target: "2", type: "custom-edge" },
 ];
 
 const fitViewOptions: FitViewOptions = {
@@ -75,9 +57,10 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   // console.log("drag event", node.data);
 };
 
-function Flow() {
+function Flow({ workflowData }: { workflowData: IGetSingleWorkflow }) {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const workflowTitle = workflowData.workflow.title;
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -101,7 +84,7 @@ function Flow() {
                 ...node,
                 data: {
                   ...node.data,
-                  fieldData: { ...node.data.fieldData as any, ...data },
+                  fieldData: { ...(node.data.fieldData as any), ...data },
                 },
               }
             : node
@@ -134,40 +117,48 @@ function Flow() {
   );
 
   return (
-    <ReactFlow
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeDrag={onNodeDrag}
-      fitView
-      fitViewOptions={fitViewOptions}
-      defaultEdgeOptions={defaultEdgeOptions}
-      colorMode="dark"
-    >
-      <Panel position="top-left">
-        <Dialog.Root>
-          <Dialog.Trigger>
-            <button className="bg-highlighted p-4 rounded-md border-2 hover:cursor-pointer hover:bg-white/30">
-              <Plus />
-            </button>
-          </Dialog.Trigger>
+    <div className="grid grid-rows-[72px_1fr] w-full">
+      <div className="bg-item w-full p-4 flex justify-between items-center">
+        <div>{workflowTitle}</div>
+        <button className="bg-pop px-4 py-2 hover:bg-pophover hover:cursor-pointer rounded-md">
+          Save
+        </button>
+      </div>
+      <ReactFlow
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeDrag={onNodeDrag}
+        fitView
+        fitViewOptions={fitViewOptions}
+        defaultEdgeOptions={defaultEdgeOptions}
+        colorMode="dark"
+      >
+        <Panel position="top-left">
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <button className="bg-highlighted p-4 rounded-md border-2 hover:cursor-pointer hover:bg-white/30">
+                <Plus />
+              </button>
+            </Dialog.Trigger>
 
-          <Dialog.Content>
-            <Dialog.Title>Node Selection</Dialog.Title>
-            <Dialog.Description mb="4">
-              Select a Node to add to your workflow
-            </Dialog.Description>
-            <AddNode onSelect={addNode} />
-          </Dialog.Content>
-        </Dialog.Root>
-      </Panel>
-      <Background bgColor="#302f31" variant={BackgroundVariant.Dots} />
-      <Controls />
-    </ReactFlow>
+            <Dialog.Content>
+              <Dialog.Title>Node Selection</Dialog.Title>
+              <Dialog.Description mb="4">
+                Select a Node to add to your workflow
+              </Dialog.Description>
+              <AddNode onSelect={addNode} />
+            </Dialog.Content>
+          </Dialog.Root>
+        </Panel>
+        <Background bgColor="#302f31" variant={BackgroundVariant.Dots} />
+        <Controls />
+      </ReactFlow>
+    </div>
   );
 }
 
