@@ -4,7 +4,7 @@ import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { useParams } from "@tanstack/react-router";
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
 function WebhookNode({
   id,
@@ -24,18 +24,30 @@ function WebhookNode({
 
   const webhookUrl = useRef(fieldData?.webhookUrl || "");
   const method = useRef(fieldData?.method || "GET");
+  const title = useRef(fieldData?.title || "");
+  const urlHeader = useRef(fieldData?.urlHeader || "");
+  const secret = useRef(fieldData?.secret || "");
 
   const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
   const [methodInput, setMethodInput] = useState(method.current);
+  const [titleInput, setTitleInput] = useState(title.current);
+  const [urlHeaderInput, setUrlHeaderInput] = useState(urlHeader.current);
+  const [secretInput, setSecretInput] = useState(secret.current);
 
   const editWebhookNodeHandler = useCallback(() => {
     webhookUrl.current = webhookUrlInput;
     method.current = methodInput;
+    title.current = titleInput;
+    urlHeader.current = urlHeaderInput;
+    secret.current = secretInput;
     data.onDataUpdate(id, {
       webhookUrl: webhookUrlInput,
-      method: methodInput
-    })
-  }, [webhookUrlInput, methodInput]);
+      method: methodInput,
+      title: titleInput,
+      urlHeader: urlHeaderInput,
+      secret: secretInput,
+    });
+  }, [webhookUrlInput, methodInput, titleInput, urlHeaderInput, secretInput]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -104,6 +116,45 @@ function WebhookNode({
                 <TextField.Slot />
               </TextField.Root>
             </label>
+
+            <label>
+              <div className="mb-1 font-bold">Title</div>
+              <TextField.Root
+                placeholder="Invoking workflows"
+                value={titleInput}
+                onChange={(e) => {
+                  setTitleInput(e.target.value);
+                }}
+              >
+                <TextField.Slot />
+              </TextField.Root>
+            </label>
+
+            <label>
+              <div className="mb-1 font-bold">URL Headers</div>
+              <TextField.Root
+                placeholder={`{"header1" : "headerValue"}`}
+                value={urlHeaderInput}
+                onChange={(e) => {
+                  setUrlHeaderInput(e.target.value);
+                }}
+              >
+                <TextField.Slot />
+              </TextField.Root>
+            </label>
+
+            <label>
+              <div className="mb-1 font-bold">Secret</div>
+              <TextField.Root
+                placeholder="unique password"
+                value={secretInput}
+                onChange={(e) => {
+                  setSecretInput(e.target.value);
+                }}
+              >
+                <TextField.Slot />
+              </TextField.Root>
+            </label>
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
@@ -143,7 +194,6 @@ function WebhookNode({
 }
 
 export default WebhookNode;
-
 
 const httpMethods = [
   "GET",
