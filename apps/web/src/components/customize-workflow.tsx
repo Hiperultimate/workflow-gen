@@ -92,6 +92,25 @@ function Flow() {
     [setEdges]
   );
 
+  const updateNodeData = useCallback(
+    (nodeId: string, data: any) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  fieldData: { ...node.data.fieldData as any, ...data },
+                },
+              }
+            : node
+        )
+      );
+    },
+    [setNodes]
+  );
+
   const addNode = useCallback(
     (newNode: { type: NodeType }) => {
       const newId = uuid();
@@ -104,8 +123,7 @@ function Flow() {
         id: newId,
         type: newNode.type,
         position: newPosition,
-        // data: { value: 123 }, // (may come handy?)
-        data: { id: newId},
+        data: { id: newId, fieldData: {}, onDataUpdate: updateNodeData },
       };
 
       setNodes((nds) => [...nds, nodeToAdd]);

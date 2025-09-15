@@ -32,7 +32,7 @@ function SelectCredential({
     }
     const getCrendentialData = data.credentials.find((item) => item.id === id);
     onSelect(getCrendentialData || null);
-  }, []);
+  }, [data]);
 
   return (
     <Flex direction="column" gap="2">

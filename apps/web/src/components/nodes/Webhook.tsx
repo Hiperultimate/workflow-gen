@@ -6,12 +6,24 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { useParams } from "@tanstack/react-router";
 import { v4 as uuid } from 'uuid';
 
-function WebhookNode({ id }: { id: string }) {
+function WebhookNode({
+  id,
+  data,
+}: {
+  id: string;
+  data: {
+    id: string;
+    fieldData: any;
+    onDataUpdate: (id: string, data: any) => void;
+  };
+}) {
   const { id: workflowId } = useParams({ strict: false });
-    const { deleteElements } = useReactFlow();
-  
-  const webhookUrl = useRef("");
-  const method = useRef("GET");
+  const { deleteElements } = useReactFlow();
+
+  const { fieldData } = data;
+
+  const webhookUrl = useRef(fieldData?.webhookUrl);
+  const method = useRef(fieldData?.method || "GET");
 
   const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
   const [methodInput, setMethodInput] = useState(method.current);
@@ -19,8 +31,11 @@ function WebhookNode({ id }: { id: string }) {
   const editWebhookNodeHandler = useCallback(() => {
     webhookUrl.current = webhookUrlInput;
     method.current = methodInput;
-    console.log("Edit node");
-  }, []);
+    data.onDataUpdate(id, {
+      webhookUrl: webhookUrlInput,
+      method: methodInput
+    })
+  }, [webhookUrlInput, methodInput]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -29,8 +44,9 @@ function WebhookNode({ id }: { id: string }) {
     [deleteElements]
   );
 
+  // TODO : fix this function not setting values
   const generateWebhookUrl = useCallback(() => {
-    if (webhookUrl.current.trim().length > 0) return;
+    if (!webhookUrl.current || webhookUrl.current.trim().length > 0) return;
     const newUuid = uuid();
     webhookUrl.current = `webhook/${workflowId}/${newUuid}`;
   }, []);

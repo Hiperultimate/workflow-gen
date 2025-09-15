@@ -6,20 +6,33 @@ import { Dialog, Flex, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 import type { ICredentials } from "@/types";
 
-function TelegramNode({ id }: { id: string }) {
-  const selectedCred = useRef<ICredentials | null>(null);
+function TelegramNode({
+  id,
+  data,
+}: {
+  id: string;
+  data: {
+    id: string;
+    fieldData: any;
+    onDataUpdate: (id: string, data: any) => void;
+  };
+}) {
   const { deleteElements } = useReactFlow();
-  const chatId = useRef("");
+  const { fieldData } = data;
+  const selectedCred = useRef<ICredentials | null>(fieldData?.selectedCred || null);
+  const chatId = useRef(fieldData?.chatId || "");
 
-  const [selectedCredential, setSelectedCredential] =
-    useState<ICredentials | null>(null);
+  const [selectedCredential, setSelectedCredential] = useState<ICredentials | null>(selectedCred.current);
   const [chatIdRef, setChatIdRef] = useState(chatId.current);
 
   const editTelegramNodeHandler = useCallback(() => {
     chatId.current = chatIdRef;
     selectedCred.current = selectedCredential;
-    console.log("Edit node with ChatID:", chatIdRef);
-  }, []);
+    data.onDataUpdate(id, {
+      selectedCred: selectedCred.current,
+      chatId: chatId.current,
+    });
+  }, [chatIdRef, selectedCredential, data.onDataUpdate]);
 
   const deleteTelegramNodeHandler = useCallback(
     (nodeId: string) => {

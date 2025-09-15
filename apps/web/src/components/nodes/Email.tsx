@@ -6,15 +6,28 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials } from "@/types";
 
-function EmailNode({ id }: { id: string }) {
-    const { deleteElements } = useReactFlow();
-  
+function EmailNode({
+  id,
+  data,
+}: {
+  id: string;
+  data: {
+    id: string;
+    fieldData: any;
+    onDataUpdate: (id: string, data: any) => void;
+  };
+}) {
+  const { deleteElements } = useReactFlow();
+  const { fieldData } = data;
+
   // New saved state
-  const selectedCred = useRef<ICredentials | null>(null);
-  const fromEmail = useRef("");
-  const toEmail = useRef("");
-  const subject = useRef("");
-  const htmlMail = useRef("");
+  const selectedCred = useRef<ICredentials | null>(
+    data?.fieldData?.selectedCredential || null
+  );
+  const fromEmail = useRef(fieldData?.fromEmail || "");
+  const toEmail = useRef(fieldData?.toEmail || "");
+  const subject = useRef(fieldData?.subject || "");
+  const htmlMail = useRef(fieldData?.htmlMail || "");
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(null);
@@ -29,7 +42,22 @@ function EmailNode({ id }: { id: string }) {
     toEmail.current = toEmailInput;
     subject.current = subjectInput;
     htmlMail.current = htmlMailInput;
-  }, []);
+
+    data.onDataUpdate(id, {
+      selectedCred: selectedCred.current,
+      fromEmail: fromEmail.current,
+      toEmail: toEmail.current,
+      subject: subject.current,
+      htmlMail: htmlMail.current,
+    });
+  }, [
+    selectedCredential,
+    fromEmailInput,
+    toEmailInput,
+    subjectInput,
+    htmlMailInput,
+    data.onDataUpdate,
+  ]);
 
   const deleteEmailNodeHandler = useCallback(
     (nodeId: string) => {
