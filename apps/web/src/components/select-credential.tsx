@@ -18,32 +18,34 @@ function SelectCredential({
     queryFn: getUserCredentials,
   });
 
-  // Filter credentials based on search input
-  const filteredCredentials =
-    data?.credentials.filter(
-      (credential) =>
-        credential.title.toLowerCase() || credential.platform.toLowerCase()
-    ) || [];
+  const credentials = data?.credentials || [];
 
-  const onSelectChange = useCallback((id: string) => {
-    if (!data) {
-      console.log("Something went while selecting credentials...");
-      return;
-    }
-    const getCrendentialData = data.credentials.find((item) => item.id === id);
-    onSelect(getCrendentialData || null);
-  }, [data]);
+  const onSelectChange = useCallback(
+    (id: string) => {
+      if (!data) {
+        console.log("Something went wrong while selecting credentials...");
+        return;
+      }
+      const getCredentialData = data.credentials.find((item) => item.id === id);
+      onSelect(getCredentialData || null);
+    },
+    [data, onSelect]
+  );
 
   return (
     <Flex direction="column" gap="2">
       <Text className="font-bold">Select Credential</Text>
       <Select.Root
         size="2"
-        onValueChange={(value) => onSelectChange(value)}
-        defaultValue={selectedCredential?.id || ""}
+        onValueChange={onSelectChange}
+        defaultValue={selectedCredential?.id}
+        disabled={isLoading || isError}
       >
-        <Select.Trigger placeholder="Search credentials..." />
-        <Select.Content>
+        <Select.Trigger
+          placeholder={isLoading ? "Loading..." : "Select a credential"}
+          aria-label="Select a credential"
+        />
+        <Select.Content position="popper" sideOffset={5} align="start">
           <Flex direction="column" gap="1" className="p-2">
             {isLoading && (
               <Text className="text-gray-500">Loading credentials...</Text>
@@ -53,13 +55,13 @@ function SelectCredential({
                 Error: {error?.message || "Failed to load credentials"}
               </Text>
             )}
-            {!isLoading && !isError && filteredCredentials.length === 0 && (
+            {!isLoading && !isError && credentials.length === 0 && (
               <Text className="text-gray-500">No credentials found</Text>
             )}
-            {!isLoading && !isError && filteredCredentials.length > 0 && (
+            {!isLoading && !isError && credentials.length > 0 && (
               <Select.Group>
                 <Select.Label>Credentials</Select.Label>
-                {filteredCredentials.map((credential) => (
+                {credentials.map((credential) => (
                   <Select.Item key={credential.id} value={credential.id}>
                     {credential.title} ({credential.platform})
                   </Select.Item>
