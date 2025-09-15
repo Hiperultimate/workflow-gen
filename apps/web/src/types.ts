@@ -33,6 +33,8 @@ export enum NodeTypes {
   Email = "emailNode",
   Webhook = "webhookNode",
   AiAgent = "aiAgent",
+  GeminiModel = "geminiModelNode",
+  CodeTool = "codeToolNode",
 }
 
 export type NodeType = `${NodeTypes}`;

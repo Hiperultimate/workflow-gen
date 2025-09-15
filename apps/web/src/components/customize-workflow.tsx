@@ -31,12 +31,16 @@ import { useMutation } from "@tanstack/react-query";
 import { saveWorkflow } from "@/api/saveWorkflow-put";
 import { toast } from "sonner";
 import AiAgent from "./nodes/AiAgent";
+import GeminiNode from "./nodes/Gemini";
+import CodeToolNode from "./nodes/CodeTool";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
   emailNode: EmailNode,
   webhookNode: WebhookNode,
-  aiAgent : AiAgent
+  aiAgent: AiAgent,
+  geminiModelNode: GeminiNode,
+  codeToolNode : CodeToolNode,
 };
 
 const edgeTypes = {
