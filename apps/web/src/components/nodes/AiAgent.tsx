@@ -1,8 +1,20 @@
-import { Bot, SquarePen, Trash2 } from "lucide-react";
+import { Bot, Plus, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
-import { Handle, Position, useReactFlow } from "@xyflow/react";
+import {
+  Handle,
+  Position,
+  useConnection,
+  useReactFlow,
+  type ConnectionState,
+} from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
+import { ButtonHandle } from "../button-handle";
+import { Button } from "../ui/button";
+
+const selector = (connection: ConnectionState) => {
+  return connection.inProgress;
+};
 
 function AiAgent({
   id,
@@ -15,6 +27,7 @@ function AiAgent({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
+  const connectionInProgress = useConnection(selector);
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
   const prompt = useRef(fieldData?.prompt || "");
@@ -94,18 +107,41 @@ function AiAgent({
         <Handle type="target" position={Position.Top} id="top" />
         <Handle type="source" position={Position.Bottom} id="bottom" />
 
-        <Handle
+        <ButtonHandle
           type="target"
           position={Position.Left}
           id="chat-model"
           style={{ top: "30%" }}
-        />
-        <Handle
+          showButton={!connectionInProgress}
+        >
+          <Button
+            onClick={() => console.log("Clicked")}
+            size="sm"
+            variant="secondary"
+            className="bg-highlighted rounded-full text-xs py-0 px-2 h-5"
+          >
+            <div>Chat Model</div>
+            <Plus size={8} />
+          </Button>
+        </ButtonHandle>
+
+        <ButtonHandle
           type="target"
           position={Position.Left}
           id="tool"
           style={{ top: "70%" }}
-        />
+          showButton={!connectionInProgress}
+        >
+          <Button
+            onClick={() => console.log("Clicked")}
+            size="sm"
+            variant="secondary"
+            className="bg-highlighted rounded-full text-xs py-0 px-2 h-5"
+          >
+            <div>Tool</div>
+            <Plus size={8} />
+          </Button>
+        </ButtonHandle>
       </div>
 
       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
