@@ -22,7 +22,7 @@ function WebhookNode({
 
   const { fieldData } = data;
 
-  const webhookUrl = useRef(fieldData?.webhookUrl);
+  const webhookUrl = useRef(fieldData?.webhookUrl || "");
   const method = useRef(fieldData?.method || "GET");
 
   const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
@@ -44,12 +44,12 @@ function WebhookNode({
     [deleteElements]
   );
 
-  // TODO : fix this function not setting values
   const generateWebhookUrl = useCallback(() => {
-    if (!webhookUrl.current || webhookUrl.current.trim().length > 0) return;
+    if (webhookUrl.current.trim().length > 0) return;
     const newUuid = uuid();
     webhookUrl.current = `webhook/${workflowId}/${newUuid}`;
-  }, []);
+    setWebhookUrlInput(webhookUrl.current);
+  }, [webhookUrl]);
 
   generateWebhookUrl();
 
