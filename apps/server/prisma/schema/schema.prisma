@@ -26,8 +26,8 @@ model Workflow {
 
   title       String
   enabled     Boolean  @default(true)
-  nodes       Json     @default("{}")
-  connections Json     @default("{}")
+  nodes       Json     @default("[]")
+  connections Json     @default("[]")
 
   webhook     Webhook[]
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
   addEdge,
@@ -24,9 +24,12 @@ import EmailNode from "./nodes/Email";
 import WebhookNode from "./nodes/Webhook";
 import { Dialog } from "@radix-ui/themes";
 import AddNode from "./add-node";
-import type { NodeType } from "@/types";
+import type { ICustomNode, NodeType } from "@/types";
 import { v4 as uuid } from "uuid";
 import type { IGetSingleWorkflow } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { saveWorkflow } from "@/api/saveWorkflow-put";
+import { toast } from "sonner";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
@@ -58,8 +61,9 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
 };
 
 function Flow({ workflowData }: { workflowData: IGetSingleWorkflow }) {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  
   const workflowTitle = workflowData.workflow.title;
 
   const onNodesChange: OnNodesChange = useCallback(
@@ -94,6 +98,20 @@ function Flow({ workflowData }: { workflowData: IGetSingleWorkflow }) {
     [setNodes]
   );
 
+  useEffect(() => {
+    const initialNodesRaw = workflowData.workflow.nodes;
+    const initialConnections = workflowData.workflow.connections;
+
+    if (initialNodesRaw) {
+      const initialNode = initialNodesRaw.map((item) => { 
+        return { ...item , data : {...item.data, onDataUpdate : updateNodeData}}
+      } )
+      setNodes(initialNode);
+    }
+  
+  setEdges(initialConnections);
+  }, [workflowData]);
+
   const addNode = useCallback(
     (newNode: { type: NodeType }) => {
       const newId = uuid();
@@ -116,11 +134,40 @@ function Flow({ workflowData }: { workflowData: IGetSingleWorkflow }) {
     [nodes, setNodes]
   );
 
+  const saveWorkflowMutation = useMutation({
+    mutationFn: saveWorkflow,
+    onSuccess: () => {
+      console.log("Workflow saved succesfully");
+    },
+  });
+
+  function onSaveHandler() {
+    toast.promise(
+      saveWorkflowMutation.mutateAsync({
+        id: workflowData.workflow.id,
+        nodes: nodes as ICustomNode[],
+        connections: edges,
+        workflowDetails: {
+          title: workflowTitle,
+          enabled: workflowData.workflow.enabled,
+        },
+      }),
+      {
+        loading: "Saving workflow...",
+        success: "Workflow saved successfully!",
+        error: (err) => `Error: ${err.message}`,
+      }
+    );
+  }
+
   return (
     <div className="grid grid-rows-[72px_1fr] w-full">
       <div className="bg-item w-full p-4 flex justify-between items-center">
         <div>{workflowTitle}</div>
-        <button className="bg-pop px-4 py-2 hover:bg-pophover hover:cursor-pointer rounded-md">
+        <button
+          className="bg-pop px-4 py-2 hover:bg-pophover hover:cursor-pointer rounded-md"
+          onClick={onSaveHandler}
+        >
           Save
         </button>
       </div>

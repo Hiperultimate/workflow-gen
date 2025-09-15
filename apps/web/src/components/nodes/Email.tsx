@@ -1,5 +1,5 @@
 import { Mail, SquarePen, Trash2 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
@@ -72,6 +72,11 @@ function EmailNode({
     },
     []
   );
+  
+  // Populate reactflow node object containing data with empty fields
+  useEffect(() => {
+    editEmailNodeHandler();
+  }, []);
 
   return (
     <NodeWrapper>

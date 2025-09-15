@@ -1,5 +1,5 @@
 import { Send, SquarePen, Trash2 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
@@ -19,10 +19,13 @@ function TelegramNode({
 }) {
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
-  const selectedCred = useRef<ICredentials | null>(fieldData?.selectedCred || null);
+  const selectedCred = useRef<ICredentials | null>(
+    fieldData?.selectedCred || null
+  );
   const chatId = useRef(fieldData?.chatId || "");
 
-  const [selectedCredential, setSelectedCredential] = useState<ICredentials | null>(selectedCred.current);
+  const [selectedCredential, setSelectedCredential] =
+    useState<ICredentials | null>(selectedCred.current);
   const [chatIdRef, setChatIdRef] = useState(chatId.current);
 
   const editTelegramNodeHandler = useCallback(() => {
@@ -47,6 +50,11 @@ function TelegramNode({
     },
     []
   );
+
+  // Populate reactflow node object containing data with empty fields
+  useEffect(() => {
+    editTelegramNodeHandler();
+  }, []);
   return (
     <NodeWrapper>
       <Dialog.Root>

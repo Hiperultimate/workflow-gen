@@ -55,8 +55,6 @@ function RouteComponent() {
     navigate({ to: `/workflowDetails/${id}` });
   }
 
-  console.log("Checking workflow data : ", allWorkflows);
-
   return (
     <div className="w-full flex text-white">
       <SideNav />

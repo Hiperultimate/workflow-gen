@@ -1,3 +1,5 @@
+import type { Edge, Node } from "@xyflow/react";
+
 export enum Platforms {
     Email = "Email",
     Telegram = "Telegram"
@@ -22,8 +24,19 @@ type IWorkflow = {
   id: string;
   title: string;
   enabled: boolean;
-  nodes: string;
-  connections: string;
+  nodes: ICustomNode[];
+  connections: Edge[];
 };
 
-export type NodeType = "telegramNode" | "emailNode" | "webhookNode";
+export enum NodeTypes {
+  Telegram = "telegramNode",
+  Email = "emailNode",
+  Webhook = "webhookNode"
+}
+export type NodeType = `${NodeTypes}`;
+
+export type ICustomNode = Omit<Node, "data"> & {
+  data: {
+    [K in keyof Node["data"]]: { fieldData: any };
+  };
+};

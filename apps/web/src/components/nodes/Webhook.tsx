@@ -1,5 +1,5 @@
 import { SquarePen, Trash2, Webhook } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
@@ -25,29 +25,29 @@ function WebhookNode({
   const webhookUrl = useRef(fieldData?.webhookUrl || "");
   const method = useRef(fieldData?.method || "GET");
   const title = useRef(fieldData?.title || "");
-  const urlHeader = useRef(fieldData?.urlHeader || "");
+  const header = useRef(fieldData?.header || "");
   const secret = useRef(fieldData?.secret || "");
 
   const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
   const [methodInput, setMethodInput] = useState(method.current);
   const [titleInput, setTitleInput] = useState(title.current);
-  const [urlHeaderInput, setUrlHeaderInput] = useState(urlHeader.current);
+  const [headerInput, setHeaderInput] = useState(header.current);
   const [secretInput, setSecretInput] = useState(secret.current);
 
   const editWebhookNodeHandler = useCallback(() => {
     webhookUrl.current = webhookUrlInput;
     method.current = methodInput;
     title.current = titleInput;
-    urlHeader.current = urlHeaderInput;
+    header.current = headerInput;
     secret.current = secretInput;
     data.onDataUpdate(id, {
       webhookUrl: webhookUrlInput,
       method: methodInput,
       title: titleInput,
-      urlHeader: urlHeaderInput,
+      header: headerInput,
       secret: secretInput,
     });
-  }, [webhookUrlInput, methodInput, titleInput, urlHeaderInput, secretInput]);
+  }, [webhookUrlInput, methodInput, titleInput, headerInput, secretInput]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -63,7 +63,11 @@ function WebhookNode({
     setWebhookUrlInput(webhookUrl.current);
   }, [webhookUrl]);
 
-  generateWebhookUrl();
+  // Populate reactflow node object containing data with empty fields
+  useEffect(() => {
+    generateWebhookUrl();
+    editWebhookNodeHandler();
+  }, []);
 
   return (
     <NodeWrapper>
@@ -134,9 +138,9 @@ function WebhookNode({
               <div className="mb-1 font-bold">URL Headers</div>
               <TextField.Root
                 placeholder={`{"header1" : "headerValue"}`}
-                value={urlHeaderInput}
+                value={headerInput}
                 onChange={(e) => {
-                  setUrlHeaderInput(e.target.value);
+                  setHeaderInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
