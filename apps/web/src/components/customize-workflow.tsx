@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import AiAgent from "./nodes/AiAgent";
 import GeminiNode from "./nodes/Gemini";
 import CodeToolNode from "./nodes/CodeTool";
+import ManualTrigger from "./nodes/ManualTrigger";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
@@ -41,6 +42,7 @@ const nodeTypes = {
   aiAgent: AiAgent,
   geminiModelNode: GeminiNode,
   codeToolNode : CodeToolNode,
+  manualTriggerNode: ManualTrigger
 };
 
 const edgeTypes = {
