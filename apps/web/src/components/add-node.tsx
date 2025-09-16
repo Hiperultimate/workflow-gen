@@ -15,7 +15,7 @@ function AddNode({ onSelect }: AddNodeProps) {
     { value: "webhookNode", label: "Webhook Node", id: "3" },
     { value: "aiAgent", label: "AI Agent", id: "4" },
     { value: "geminiModelNode", label: "Gemini Model Node", id: "5" },
-    { value: "codeToolNode", label: "Code Tool Node", id: "5" },
+    { value: "codeToolNode", label: "Code Tool Node", id: "6" },
   ];
 
   // Filter nodes based on input
