@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
-import { useParams } from "@tanstack/react-router";
 import { v4 as uuid } from "uuid";
 
 function WebhookNode({
@@ -17,37 +16,42 @@ function WebhookNode({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
-  const { id: workflowId } = useParams({ strict: false });
   const { deleteElements } = useReactFlow();
 
   const { fieldData } = data;
 
-  const webhookUrl = useRef(fieldData?.webhookUrl || "");
+  const path = useRef(fieldData?.path || "");
   const method = useRef(fieldData?.method || "GET");
   const title = useRef(fieldData?.title || "");
   const header = useRef(fieldData?.header || "");
   const secret = useRef(fieldData?.secret || "");
 
-  const [webhookUrlInput, setWebhookUrlInput] = useState(webhookUrl.current);
+  const [pathInput, setPathInput] = useState(path.current);
   const [methodInput, setMethodInput] = useState(method.current);
   const [titleInput, setTitleInput] = useState(title.current);
   const [headerInput, setHeaderInput] = useState(header.current);
   const [secretInput, setSecretInput] = useState(secret.current);
 
   const editWebhookNodeHandler = useCallback(() => {
-    webhookUrl.current = webhookUrlInput;
+    let checkedUrl = pathInput; 
+    if (checkedUrl.trim().length === 0) {
+      const newUrl = generatepath();
+      setPathInput(newUrl);
+      checkedUrl = newUrl;
+    }
+    path.current = checkedUrl;
     method.current = methodInput;
     title.current = titleInput;
     header.current = headerInput;
     secret.current = secretInput;
     data.onDataUpdate(id, {
-      webhookUrl: webhookUrlInput,
+      path: checkedUrl,
       method: methodInput,
       title: titleInput,
       header: headerInput,
       secret: secretInput,
     });
-  }, [webhookUrlInput, methodInput, titleInput, headerInput, secretInput]);
+  }, [pathInput, methodInput, titleInput, headerInput, secretInput]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -56,16 +60,21 @@ function WebhookNode({
     [deleteElements]
   );
 
-  const generateWebhookUrl = useCallback(() => {
-    if (webhookUrl.current.trim().length > 0) return;
+  const generatepath = useCallback(() => {
     const newUuid = uuid();
-    webhookUrl.current = `webhook/${workflowId}/${newUuid}`;
-    setWebhookUrlInput(webhookUrl.current);
-  }, [webhookUrl]);
+    const resultUrl = `webhook/${newUuid}`;
+    path.current = resultUrl;
+    return resultUrl;
+  }, []);
+
+  if (path.current.trim().length === 0) {
+    const newUrl = generatepath();
+    setPathInput(newUrl);
+  }
+  
 
   // Populate reactflow node object containing data with empty fields
   useEffect(() => {
-    generateWebhookUrl();
     editWebhookNodeHandler();
   }, []);
 
@@ -112,9 +121,9 @@ function WebhookNode({
               <div className="mb-1 font-bold">Webhook URL</div>
               <TextField.Root
                 placeholder="Enter Webhook URL"
-                value={webhookUrlInput}
+                value={pathInput}
                 onChange={(e) => {
-                  setWebhookUrlInput(e.target.value);
+                  setPathInput(e.target.value);
                 }}
               >
                 <TextField.Slot />

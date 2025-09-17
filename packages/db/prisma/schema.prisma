@@ -41,7 +41,7 @@ model Webhook {
   secret        String?
 
   workflow      Workflow    @relation(fields: [workflowId], references: [id])
-  workflowId    String      @unique
+  workflowId    String      
 }
 
 model Credentials {
