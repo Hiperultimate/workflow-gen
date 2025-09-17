@@ -1,4 +1,4 @@
-import type { IConnection, INode } from "@/types/types";
+import { NodeTypes, type IConnection, type INode } from "@/types/types";
 import { prisma, type Methods } from "@workflow-gen/db";
 import { Router } from "express";
 
@@ -54,6 +54,28 @@ function getConnectedNodesFromNode(
       return connectedNodes;
 }
 
-// function processNode(idOfNodeToProcess, inputData) {}
+function processNodeById(nodeId: string, node: INode, inputData: Record<any, any>) {
+  const nodeType = node.type;
+  switch (nodeType) {
+    case NodeTypes.Email: {
+      console.log("Processing Email");
+      // const emailFieldData = node.data.fieldData;
+      // const subject = emailFieldData.subject;
+      // const toEmail = emailFieldData.toEmail;
+      // const htmlMail = emailFieldData.htmlMail;
+      // const fromEmail = emailFieldData.fromEmail;
+      // const emailCredentials = emailFieldData.selectedCred.data.key;
+
+      break;
+    };
+    case NodeTypes.Telegram: {
+      console.log("Processing Telegram");
+      break;
+    }
+  }
+  // get node
+  // get node type eg telegram / email
+  // run code according to node type by using switch case (very simple)
+}
 
 export default webhookRoutes;
