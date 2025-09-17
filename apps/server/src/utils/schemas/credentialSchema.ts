@@ -1,4 +1,5 @@
-import { Platform } from "prisma/generated/enums";
+// import { Platform } from "prisma/generated/enums";
+import { Platform } from "@workflow-gen/db";
 import z from "zod";
 
 export const crendentialCreateSchema = z.object({

@@ -7,18 +7,9 @@
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "bun run --hot src/index.ts",
-    "start": "bun run dist/index.js",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:start": "docker compose up -d",
-    "db:watch": "docker compose up",
-    "db:stop": "docker compose stop",
-    "db:down": "docker compose down"
+    "start": "bun run dist/index.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.15.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/jsonwebtoken": "^9.0.10",
@@ -28,14 +19,14 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "zod": "^4.0.2"
+    "zod": "^4.0.2",
+    "@workflow-gen/db":"workspace:*"
   },
   "devDependencies": {
     "tsdown": "^0.14.1",
     "typescript": "^5.8.2",
     "@types/express": "^5.0.1",
     "@types/cors": "^2.8.17",
-    "@types/bun": "^1.2.6",
-    "prisma": "^6.15.0"
+    "@types/bun": "^1.2.6"
   }
 }

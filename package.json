@@ -13,14 +13,14 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F server db:push",
-    "db:studio": "turbo -F server db:studio",
-    "db:generate": "turbo -F server db:generate",
-    "db:migrate": "turbo -F server db:migrate",
-    "db:start": "turbo -F server db:start",
-    "db:watch": "turbo -F server db:watch",
-    "db:stop": "turbo -F server db:stop",
-    "db:down": "turbo -F server db:down"
+    "db:push": "turbo -F @workflow-gen/db db:push",
+    "db:studio": "turbo -F @workflow-gen/db db:studio",
+    "db:generate": "turbo -F @workflow-gen/db db:generate",
+    "db:migrate": "turbo -F @workflow-gen/db db:migrate",
+    "db:start": "turbo -F @workflow-gen/db db:start",
+    "db:watch": "turbo -F @workflow-gen/db db:watch",
+    "db:stop": "turbo -F @workflow-gen/db db:stop",
+    "db:down": "turbo -F @workflow-gen/db db:down"
   },
   "dependencies": {},
   "devDependencies": {

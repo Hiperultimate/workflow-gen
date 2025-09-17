@@ -1,4 +1,4 @@
-import { Methods } from 'prisma/generated/enums';
+import { Methods } from '@workflow-gen/db';
 import z from 'zod';
 
 export const validWebHook = z.object({
