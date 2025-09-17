@@ -45,6 +45,7 @@ function WebhookNode({
     header.current = headerInput;
     secret.current = secretInput;
     data.onDataUpdate(id, {
+      id: id,
       path: checkedUrl,
       method: methodInput,
       title: titleInput,
