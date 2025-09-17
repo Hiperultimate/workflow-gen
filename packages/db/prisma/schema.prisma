@@ -36,7 +36,7 @@ model Webhook {
   id            String      @id @default(uuid())
   title         String
   method        Methods     @default(GET)
-  path          String
+  path          String      @unique
   header        String
   secret        String?
 
@@ -65,4 +65,7 @@ enum Methods {
   POST
   PUT
   DELETE
+  PATCH
+  OPTIONS
+  HEAD
 }

@@ -5,6 +5,6 @@ export const validWebHook = z.object({
     title: z.string(),
     method: z.enum(Methods),
     header: z.string(),
-    path: z.string(),
+    path: z.string().min(3),
     secret: z.string().optional() ,
 })

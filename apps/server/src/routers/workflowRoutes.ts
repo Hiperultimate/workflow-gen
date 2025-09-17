@@ -94,14 +94,22 @@ workflowRoutes.put("/:id", auth, async (req, res) => {
     return res.status(400).send({ message: "Invalid webhook data provided" });
   }
 
-  const preWebhook = validateWebhooks.data;
-  
-  const newWebhooks = preWebhook.map(webhook => {
-    return {
-      id : webhook.path.split("webhook/").at(-1) as string,
-      ...webhook
-    }
-  })
+  await Promise.all(
+    validateWebhooks.data.map(async (webhook) => {
+      const webhookPathExist = await prisma.webhook.findFirst({
+        where: { path: webhook.path, AND: { NOT: { workflowId: workflowId } } },
+      });
+      if (webhookPathExist) {
+        return res
+          .status(400)
+          .send({
+            message: `Please enter a unique webhook path, received : ${webhook.path}`,
+          });
+      }
+    })
+  );
+
+  const newWebhooks = validateWebhooks.data;
 
   const existingWorkflow = await prisma.workflow.findUnique({
     where: { id: workflowId },
@@ -121,7 +129,6 @@ workflowRoutes.put("/:id", auth, async (req, res) => {
     const createdWebhooks = await prisma.webhook.createMany({
       data: newWebhooks.map((wh) => ({
         ...wh,
-        path: `webhook/${wh.id}`,
         workflowId: workflowId,
       })),
     });
