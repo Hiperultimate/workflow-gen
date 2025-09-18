@@ -5,6 +5,13 @@ import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials } from "@/types";
+import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+
+type NodeWithOptionalFieldData = {
+  fieldData?: {
+    header?: string[];
+  };
+};
 
 function EmailNode({
   id,
@@ -17,9 +24,11 @@ function EmailNode({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
-  const { deleteElements } = useReactFlow();
+  const { deleteElements, getNodes } = useReactFlow();
+  const { getSourceNodesData } = useConnectedNodesData();
   const { fieldData } = data;
 
+  const parentNodeData = getSourceNodesData(id) as NodeWithOptionalFieldData[];
   // New saved state
   const selectedCred = useRef<ICredentials | null>(
     data?.fieldData?.selectedCredential || null
@@ -72,7 +81,7 @@ function EmailNode({
     },
     []
   );
-  
+
   // Populate reactflow node object containing data with empty fields
   useEffect(() => {
     editEmailNodeHandler();
@@ -113,6 +122,22 @@ function EmailNode({
                 <TextField.Slot />
               </TextField.Root>
             </label>
+
+            <div className="mt-2">
+              <div className="bg-gray-800 border border-gray-300 rounded-md px-4 py-2 text-gray-300 font-mono">
+                <div className="mb-1 font-bold">Input Data Preview</div>
+                {parentNodeData && (
+                  <div>
+                    {parentNodeData
+                      .map((node) => node.fieldData?.header ?? []) // safe: if fieldData or header missing, use empty array
+                      .flat()
+                      .map((headerValue, idx) => (
+                        <span key={idx}>{`{{${headerValue}}} `}</span>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
             <label>
               <div className="mb-1 font-bold">To Email</div>

@@ -37,7 +37,7 @@ model Webhook {
   title         String
   method        Methods     @default(GET)
   path          String      @unique
-  header        String
+  header        String[]    @default([])
   secret        String?
 
   workflow      Workflow    @relation(fields: [workflowId], references: [id])

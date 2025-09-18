@@ -4,6 +4,7 @@ import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { v4 as uuid } from "uuid";
+import TagsInput from "../tag-input";
 
 function WebhookNode({
   id,
@@ -23,13 +24,13 @@ function WebhookNode({
   const path = useRef(fieldData?.path || "");
   const method = useRef(fieldData?.method || "GET");
   const title = useRef(fieldData?.title || "");
-  const header = useRef(fieldData?.header || "");
+  const header = useRef(fieldData?.header || []);
   const secret = useRef(fieldData?.secret || "");
 
   const [pathInput, setPathInput] = useState(path.current);
   const [methodInput, setMethodInput] = useState(method.current);
   const [titleInput, setTitleInput] = useState(title.current);
-  const [headerInput, setHeaderInput] = useState(header.current);
+  const [headerInput, setHeaderInput] = useState<string[]>(header.current);
   const [secretInput, setSecretInput] = useState(secret.current);
 
   const editWebhookNodeHandler = useCallback(() => {
@@ -112,7 +113,7 @@ function WebhookNode({
                       <Select.Item key={method} value={method}>
                         {method}
                       </Select.Item>
-                    ))}
+                  ))}
                   </Select.Group>
                 </Select.Content>
               </Select.Root>
@@ -152,15 +153,7 @@ function WebhookNode({
 
             <label>
               <div className="mb-1 font-bold">URL Headers</div>
-              <TextField.Root
-                placeholder={`{"header1" : "headerValue"}`}
-                value={headerInput}
-                onChange={(e) => {
-                  setHeaderInput(e.target.value);
-                }}
-              >
-                <TextField.Slot />
-              </TextField.Root>
+              <TagsInput tags={headerInput} setTags={setHeaderInput}/>
             </label>
 
             <label>
