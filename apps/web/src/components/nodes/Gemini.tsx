@@ -20,7 +20,7 @@ function GeminiNode({
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
   const selectedCred = useRef<ICredentials | null>(
-    fieldData?.selectedCredential || null
+    fieldData?.selectedCred || null
   );
 
   const [selectedCredential, setSelectedCredential] =

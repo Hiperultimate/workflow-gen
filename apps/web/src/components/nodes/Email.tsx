@@ -31,7 +31,7 @@ function EmailNode({
   const parentNodeData = getSourceNodesData(id) as NodeWithOptionalFieldData[];
   // New saved state
   const selectedCred = useRef<ICredentials | null>(
-    data?.fieldData?.selectedCredential || null
+    data?.fieldData?.selectedCred || null
   );
   // const fromEmail = useRef(fieldData?.fromEmail || "");
   const toEmail = useRef(fieldData?.toEmail || "");
@@ -39,7 +39,7 @@ function EmailNode({
   const htmlMail = useRef(fieldData?.htmlMail || "");
 
   const [selectedCredential, setSelectedCredential] =
-    useState<ICredentials | null>(null);
+    useState<ICredentials | null>(selectedCred.current);
   // const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
