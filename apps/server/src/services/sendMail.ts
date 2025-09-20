@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-export async function sendAuthMail({
+export async function sendMail({
   from,
   to,
   subject,

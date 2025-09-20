@@ -1,6 +1,7 @@
 import { NodeTypes, type IConnection, type INode } from "@/types/types";
 import { prisma, type Methods } from "@workflow-gen/db";
-import { Router } from "express";
+import { Router, type Request } from "express";
+import { sendMail } from "@/services/sendMail";
 
 const webhookRoutes = Router();
 
@@ -15,7 +16,7 @@ webhookRoutes.all("/:path", async (req, res) => {
     where: { path: webhookPath, method: method },
     include: { workflow: true },
   });
-    
+
   if (!webhookRecord) {
     return res
       .status(400)
@@ -28,13 +29,31 @@ webhookRoutes.all("/:path", async (req, res) => {
   const nodes = workflowData.nodes as INode[];
   const connections = workflowData.connections as IConnection[];
 
-  const connectedNodes = getConnectedNodesFromNode(
-    webhookId,
-    nodes,
-    connections
+  const processNodeArr: { node: INode; passingData: any }[] = [];
+  const firstNode = nodes.filter((node) => node.id === webhookId)[0];
+  const passingData = getWebhookPassingData(
+    firstNode,
+    Object.keys(req.body).length > 0 ? req.body : req.query
   );
 
-  console.log("Nodes connected to webhook : ", connectedNodes);
+  processNodeArr.push({ node: firstNode, passingData: passingData });
+  let iter = 0;
+  while (iter < processNodeArr.length) {
+    const { node: currentNode, passingData: currentNodePassingData } =
+      processNodeArr[iter];
+
+    const passingData = await processNode(currentNode, currentNodePassingData); // Write code here to return processed data
+    const nextNodes = getConnectedNodesFromNode(
+      currentNode.id,
+      nodes,
+      connections
+    );
+
+    nextNodes.forEach((node) => {
+      processNodeArr.push({ node: node, passingData: passingData });
+    });
+    iter++;
+  }
 
   res.status(200).send({ message: "Recieved webhook request, initiating..." });
 });
@@ -44,38 +63,123 @@ function getConnectedNodesFromNode(
   nodes: INode[],
   connections: IConnection[]
 ) {
-    const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
 
-    const connectedNodes = connections
-      .filter((connection) => connection.source === nodeId)
-      .map((connection) => nodeMap.get(connection.target))
-        .filter((node): node is INode => node !== undefined);
+  const connectedNodes = connections
+    .filter((connection) => connection.source === nodeId)
+    .map((connection) => nodeMap.get(connection.target))
+    .filter((node): node is INode => node !== undefined);
 
-      return connectedNodes;
+  return connectedNodes;
 }
 
-function processNodeById(nodeId: string, node: INode, inputData: Record<any, any>) {
+function getWebhookPassingData(
+  webhookNode: INode,
+  reqObj: Record<string, any>
+) {
+  const nodeData = webhookNode.data;
+  const headerData: string[] = nodeData?.fieldData?.header;
+  if (!headerData) return [];
+
+  const reqData: Record<string, string> = {};
+
+  headerData.forEach((keyword) => {
+    reqData[keyword] = reqObj[keyword];
+  });
+
+  return { header: reqData };
+}
+
+function getSourcesOfNode(
+  nodeId: string,
+  nodes: INode[],
+  connections: IConnection[]
+) {
+  const connectionOfNodesConnectedToNodeId = connections.filter(
+    (connection) => {
+      return connection.target === nodeId;
+    }
+  );
+  const nodesConnectedToNodeId = connectionOfNodesConnectedToNodeId.flatMap(
+    (connection) => {
+      const node = nodes.find((node) => node.id === connection.source);
+      return node ? [node] : [];
+    }
+  );
+
+  return nodesConnectedToNodeId;
+}
+
+async function processNode(
+  // nodeId: string,
+  node: INode,
+  inputData: Record<any, any>
+): Promise<{ success: boolean; passingData: any }> {
   const nodeType = node.type;
   switch (nodeType) {
-    case NodeTypes.Email: {
-      console.log("Processing Email");
-      // const emailFieldData = node.data.fieldData;
-      // const subject = emailFieldData.subject;
-      // const toEmail = emailFieldData.toEmail;
-      // const htmlMail = emailFieldData.htmlMail;
-      // const fromEmail = emailFieldData.fromEmail;
-      // const emailCredentials = emailFieldData.selectedCred.data.key;
+    case NodeTypes.Webhook: {
+      console.log("Processing Webhook : ", nodeType);
 
-      break;
-    };
+      const webhookData = getWebhookPassingData(node, inputData.header);
+      return { success: true, passingData: webhookData };
+    }
+    case NodeTypes.Email: {
+      console.log("Processing Email : ", nodeType);
+
+      const emailFieldData = node.data?.fieldData;
+      const subjectRaw = emailFieldData.subject;
+      const toEmailRaw = emailFieldData.toEmail;
+      const htmlMailRaw = emailFieldData.htmlMail;
+      // const fromEmailRaw = emailFieldData.fromEmail;
+      const emailCredentialsRaw = emailFieldData.selectedCred;
+      // const fromMailRaw = emailCredentials?.data?.mail?.fromEmail;
+      const headerData = inputData?.passingData?.header;
+
+      const subject = interpolate(subjectRaw || "", headerData)
+      const toEmail = interpolate(toEmailRaw || "", headerData)
+      const htmlMail = interpolate(htmlMailRaw || "", headerData)
+      // const fromEmail = interpolate(fromEmailRaw || "", headerData)
+      const emailCredentials = interpolate(emailCredentialsRaw || "", headerData)
+      // const fromMail = interpolate(fromMailRaw || "", headerData)
+
+      // console.log(
+      //   "Checking email data :",
+      //   subject,
+      //   toEmail,
+      //   htmlMail,
+      //   emailCredentials,
+      //   headerData
+      // );
+
+      console.log("Checking node data : ",emailFieldData);
+
+      // await sendMail({
+      //   from: fromMail,
+      //   to: toEmail,
+      //   subject: subject,
+      //   htmlMail: htmlMail,
+      //   resendApi: emailCredentials.data.apiKey,
+      // });
+      return { success: true, passingData: {} };
+    }
     case NodeTypes.Telegram: {
       console.log("Processing Telegram");
-      break;
+
+      return { success: true, passingData: {} };
     }
+    default:
+      console.log("Unable to find Node Type : ", nodeType);
+      return { success: false, passingData: {} };
   }
-  // get node
-  // get node type eg telegram / email
-  // run code according to node type by using switch case (very simple)
+}
+
+// Funtion to replace {{text}} with value inside header
+type Header = Record<string, string>;
+function interpolate(template: string, header: Header): string {
+  return template.replace(/{{(.*?)}}/g, (_, key) => {
+    const trimmedKey = key.trim();
+    return header[trimmedKey] ?? ""; // fallback if key not found
+  });
 }
 
 export default webhookRoutes;

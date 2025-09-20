@@ -24,7 +24,7 @@ function EmailNode({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
-  const { deleteElements, getNodes } = useReactFlow();
+  const { deleteElements } = useReactFlow();
   const { getSourceNodesData } = useConnectedNodesData();
   const { fieldData } = data;
 
@@ -33,35 +33,35 @@ function EmailNode({
   const selectedCred = useRef<ICredentials | null>(
     data?.fieldData?.selectedCredential || null
   );
-  const fromEmail = useRef(fieldData?.fromEmail || "");
+  // const fromEmail = useRef(fieldData?.fromEmail || "");
   const toEmail = useRef(fieldData?.toEmail || "");
   const subject = useRef(fieldData?.subject || "");
   const htmlMail = useRef(fieldData?.htmlMail || "");
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(null);
-  const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
+  // const [fromEmailInput, setFromEmailInput] = useState(fromEmail.current);
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
   const [htmlMailInput, setHtmlMailInput] = useState(htmlMail.current);
 
   const editEmailNodeHandler = useCallback(() => {
     selectedCred.current = selectedCredential;
-    fromEmail.current = fromEmailInput;
+    // fromEmail.current = fromEmailInput;
     toEmail.current = toEmailInput;
     subject.current = subjectInput;
     htmlMail.current = htmlMailInput;
 
     data.onDataUpdate(id, {
       selectedCred: selectedCred.current,
-      fromEmail: fromEmail.current,
+      // fromEmail: fromEmail.current,
       toEmail: toEmail.current,
       subject: subject.current,
       htmlMail: htmlMail.current,
     });
   }, [
     selectedCredential,
-    fromEmailInput,
+    // fromEmailInput,
     toEmailInput,
     subjectInput,
     htmlMailInput,
@@ -110,18 +110,18 @@ function EmailNode({
               />
             </label>
 
-            <label>
+            {/* <label>
               <div className="mb-1 font-bold">From Email</div>
               <TextField.Root
                 placeholder="admin@example.com"
-                value={fromEmailInput}
+                value={fromEmailInput} 
                 onChange={(e) => {
                   setFromEmailInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
               </TextField.Root>
-            </label>
+            </label> */}
 
             <div className="mt-2">
               <div className="bg-gray-800 border border-gray-300 rounded-md px-4 py-2 text-gray-300 font-mono">

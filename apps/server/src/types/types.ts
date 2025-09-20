@@ -7,7 +7,7 @@ export type IConnection = {
 
 export type INode = {
   id: string;
-  data: Record<any, any>[];
+  data: Record<any, any>;
   type: NodeType;
   measured: Record<any, any>[];
   position: Record<any, any>[];
