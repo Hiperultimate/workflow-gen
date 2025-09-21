@@ -13,6 +13,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node-telegram-bot-api": "^0.64.11",
     "@workflow-gen/db": "workspace:*",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -20,6 +21,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "node-telegram-bot-api": "^0.66.0",
     "resend": "^6.1.0",
     "zod": "^4.0.2"
   },

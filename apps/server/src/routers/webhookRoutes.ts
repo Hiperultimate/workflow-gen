@@ -1,6 +1,7 @@
 import { NodeTypes, type IConnection, type INode } from "@/types/types";
 import { prisma, type Methods } from "@workflow-gen/db";
-import { Router, type Request } from "express";
+import { Router } from "express";
+import sendTelegramMessage from "@/services/sendTelegramMessage";
 import { sendMail } from "@/services/sendMail";
 
 const webhookRoutes = Router();
@@ -173,7 +174,19 @@ async function processNode(
     case NodeTypes.Telegram: {
       console.log("Processing Telegram");
 
-      return { success: true, passingData: {} };
+      const fieldData = node.data?.fieldData;
+      const chatIdForm = fieldData.chatId;
+      const chatMessageForm = fieldData.chatMessage;
+      const telegramCredentials = fieldData.selectedCred;
+
+      const headerData = inputData?.passingData?.header;
+      const finalChatId = interpolate(chatIdForm || "", headerData);
+      const finalChatMessage = interpolate(chatMessageForm || "", headerData);
+
+      const telegramBotApi = telegramCredentials?.data?.botApi;
+      const response = await sendTelegramMessage({chatId: finalChatId, message: finalChatMessage, telegramApi: telegramBotApi || ''});
+
+      return { success: response.success, passingData: {} };
     }
     default:
       console.log("Unable to find Node Type : ", nodeType);

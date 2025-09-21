@@ -4,14 +4,8 @@ import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
-import type { ICredentials } from "@/types";
+import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
-
-type NodeWithOptionalFieldData = {
-  fieldData?: {
-    header?: string[];
-  };
-};
 
 function EmailNode({
   id,

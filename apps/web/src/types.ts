@@ -46,3 +46,9 @@ export type ICustomNode = Omit<Node, "data"> & {
     [K in keyof Node["data"]]: { fieldData: any };
   };
 };
+
+export type NodeWithOptionalFieldData = {
+  fieldData?: {
+    header?: string[];
+  };
+};

@@ -1,10 +1,11 @@
 import { Send, SquarePen, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
-import { Dialog, Flex, TextField } from "@radix-ui/themes";
+import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
-import type { ICredentials } from "@/types";
+import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
+import useConnectedNodesData from "@/hooks/useConnectedNodesData";
 
 function TelegramNode({
   id,
@@ -19,23 +20,31 @@ function TelegramNode({
 }) {
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
+  const { getSourceNodesData } = useConnectedNodesData();
+
   const selectedCred = useRef<ICredentials | null>(
     fieldData?.selectedCred || null
   );
+  const parentNodeData = getSourceNodesData(id) as NodeWithOptionalFieldData[];
   const chatId = useRef(fieldData?.chatId || "");
+  const chatMessage = useRef(fieldData?.chatMessage || "");
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(selectedCred.current);
-  const [chatIdRef, setChatIdRef] = useState(chatId.current);
+  const [chatIdInput, setChatIdInput] = useState(chatId.current);
+  const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
+
 
   const editTelegramNodeHandler = useCallback(() => {
-    chatId.current = chatIdRef;
+    chatId.current = chatIdInput;
     selectedCred.current = selectedCredential;
+    chatMessage.current = chatMessageInput;
     data.onDataUpdate(id, {
       selectedCred: selectedCred.current,
       chatId: chatId.current,
+      chatMessage: chatMessage.current,
     });
-  }, [chatIdRef, selectedCredential, data.onDataUpdate]);
+  }, [chatIdInput, selectedCredential, chatMessageInput, data.onDataUpdate]);
 
   const deleteTelegramNodeHandler = useCallback(
     (nodeId: string) => {
@@ -70,6 +79,20 @@ function TelegramNode({
             Enter the Chat ID for the Telegram Bot
           </Dialog.Description>
 
+          <div className="bg-gray-800 border border-gray-300 rounded-md px-4 py-2 text-gray-300 font-mono">
+            <div className="mb-1 font-bold">Input Data Preview</div>
+            {parentNodeData && (
+              <div>
+                {parentNodeData
+                  .map((node) => node.fieldData?.header ?? []) // safe: if fieldData or header missing, use empty array
+                  .flat()
+                  .map((headerValue, idx) => (
+                    <span key={idx}>{`{{${headerValue}}} `}</span>
+                  ))}
+              </div>
+            )}
+          </div>
+
           <Flex direction="column" gap="3">
             <label>
               <SelectCredential
@@ -82,14 +105,27 @@ function TelegramNode({
               <div className="mb-1 font-bold">Chat ID</div>
               <TextField.Root
                 placeholder="Enter Chat ID"
-                value={chatIdRef}
+                value={chatIdInput}
                 onChange={(e) => {
-                  setChatIdRef(e.target.value);
+                  setChatIdInput(e.target.value);
                 }}
               >
                 <TextField.Slot />
               </TextField.Root>
             </label>
+
+            <label>
+              <div className="mb-1 font-bold">Message</div>
+              <TextArea
+                placeholder="Enter HTML content here"
+                value={chatMessageInput}
+                onChange={(e) => {
+                  setChatMessageInput(e.target.value);
+                }}
+                className="w-full p-2 border rounded-md bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </label>
+
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
