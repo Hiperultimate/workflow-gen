@@ -7,7 +7,7 @@ export async function sendMail({
   htmlMail,
   resendApi,
 }: {
-  from: string | undefined;
+  from?: string;
   to: string;
   subject: string;
   htmlMail: string;
@@ -15,16 +15,19 @@ export async function sendMail({
 }) {
   const resend = new Resend(resendApi);
 
-  try {
-    await resend.emails.send({
-      from: from || "onboarding@resend.dev", // Currently just sending the mail
-      to: to,
-      subject: subject,
-      html: htmlMail,
-    });
-    return { success: true, message: "Success" };
-  } catch (error) {
-    console.log("An error occured while sending mail through Resend :", error);
-    return { success: false, message: error };
+  const response = await resend.emails.send({
+    from: from || "onboarding@resend.dev", // Currently just sending the mail
+    to: to,
+    subject: subject,
+    html: htmlMail,
+  });
+
+  if (response.error) {
+    return {
+      success: false,
+      message: response.error.message,
+    };
   }
+
+  return { success: true, message: "Success" };
 }

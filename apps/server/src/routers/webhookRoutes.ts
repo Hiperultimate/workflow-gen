@@ -114,7 +114,7 @@ async function processNode(
   // nodeId: string,
   node: INode,
   inputData: Record<any, any>
-): Promise<{ success: boolean; passingData: any }> {
+): Promise<{ success: boolean; passingData: any; message?: string }> {
   const nodeType = node.type;
   switch (nodeType) {
     case NodeTypes.Webhook: {
@@ -130,36 +130,44 @@ async function processNode(
       const subjectRaw = emailFieldData.subject;
       const toEmailRaw = emailFieldData.toEmail;
       const htmlMailRaw = emailFieldData.htmlMail;
-      // const fromEmailRaw = emailFieldData.fromEmail;
-      const emailCredentialsRaw = emailFieldData.selectedCred;
-      // const fromMailRaw = emailCredentials?.data?.mail?.fromEmail;
+      const emailCredentials = emailFieldData?.selectedCred;
       const headerData = inputData?.passingData?.header;
 
-      const subject = interpolate(subjectRaw || "", headerData)
-      const toEmail = interpolate(toEmailRaw || "", headerData)
-      const htmlMail = interpolate(htmlMailRaw || "", headerData)
-      // const fromEmail = interpolate(fromEmailRaw || "", headerData)
-      const emailCredentials = interpolate(emailCredentialsRaw || "", headerData)
-      // const fromMail = interpolate(fromMailRaw || "", headerData)
+      const subject = interpolate(subjectRaw || "", headerData);
+      const toEmail = interpolate(toEmailRaw || "", headerData);
+      const htmlMail = interpolate(htmlMailRaw || "", headerData);
+      const fromEmail = emailCredentials?.data?.email;
+      const resendApiKey = emailCredentials?.data?.api;
 
-      // console.log(
-      //   "Checking email data :",
-      //   subject,
-      //   toEmail,
-      //   htmlMail,
-      //   emailCredentials,
-      //   headerData
-      // );
-
-      console.log("Checking node data : ",emailFieldData);
-
-      // await sendMail({
-      //   from: fromMail,
-      //   to: toEmail,
+      // console.log("Checking email data :", {
       //   subject: subject,
+      //   toEmail: toEmail,
       //   htmlMail: htmlMail,
-      //   resendApi: emailCredentials.data.apiKey,
+      //   emailCredentials: emailCredentials,
+      //   headerData: headerData,
+      //   fromEmail: fromEmail,
+      //   resendApiKey: resendApiKey,
       // });
+
+      if (!emailCredentials || !resendApiKey || !fromEmail) {
+        return {
+          success: false,
+          passingData: {},
+          message: "No credentials found",
+        };
+      }
+
+      const { success, message: mailMessage } = await sendMail({
+        // from: fromEmail, // Currently using default email because of resend restrictions
+        to: toEmail,
+        subject: subject,
+        htmlMail: htmlMail,
+        resendApi: resendApiKey,
+      });
+      console.log("Checking send mail response : ", success, mailMessage);
+      if (success === false)
+        return { success: false, passingData: {}, message: mailMessage };
+
       return { success: true, passingData: {} };
     }
     case NodeTypes.Telegram: {
