@@ -1,9 +1,9 @@
-import { Dialog, Flex, TextField, TextArea, Select } from "@radix-ui/themes";
+ import { Dialog, Flex, TextField, TextArea, Select, Tooltip } from "@radix-ui/themes";
 import { SideNav } from "@/components/side-nav";
 import { useUserSession } from "@/store/user";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Brain, MailIcon, Plus, Send, X } from "lucide-react";
-import { useRef } from "react";
+ import { Brain, Info, MailIcon, Plus, Send, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCredential } from "@/api/createCredential-post";
 import { getUserCredentials } from "@/api/getUserCredentials-get";
@@ -19,9 +19,11 @@ export const Route = createFileRoute("/credentials")({
 function RouteComponent() {
   const navigate = useNavigate();
   const user = useUserSession((s) => s.user);
-  const platform = useRef("Email");
+  const [platform, setPlatform] = useState("Email");
   const title = useRef("");
   const apiKeys = useRef("");
+
+  const [placeholder, setPlaceholder] = useState('{"api":"apiString"}');
   const queryClient = useQueryClient();
 
   if (!user) {
@@ -64,7 +66,7 @@ function RouteComponent() {
     toast.promise(
       addCredential.mutateAsync({
         title: title.current,
-        platform: platform.current,
+        platform: platform,
         data: apiKeys.current,
       }),
       {
@@ -105,13 +107,20 @@ function RouteComponent() {
                 <label>
                   <div className="mb-1 font-bold">Platforms</div>
                   {/* Select button */}
-                  <Select.Root
-                    size="2"
-                    defaultValue={platform.current}
-                    onValueChange={(val) => {
-                      platform.current = val;
-                    }}
-                  >
+                   <Select.Root
+                     size="2"
+                     defaultValue={platform}
+                     onValueChange={(val) => {
+                       setPlatform(val);
+                       if (val === "Telegram") {
+                         setPlaceholder('{"botApi":"apiKey"}');
+                       } else if (val === "Email") {
+                         setPlaceholder('{"api":"apiString"}');
+                       } else {
+                         setPlaceholder("{json:data}");
+                       }
+                     }}
+                   >
                     <Select.Trigger />
                     <Select.Content>
                       <Select.Group>
@@ -134,15 +143,22 @@ function RouteComponent() {
                     <TextField.Slot />
                   </TextField.Root>
                 </label>
-                <label>
-                  <div className="mb-1 font-bold">API Key</div>
-                  <TextArea
-                    placeholder="{json:data}"
-                    onChange={(val) => {
-                      apiKeys.current = val.target.value;
-                    }}
-                  />
-                </label>
+                 <label>
+                   <div className="mb-1 font-bold flex items-center gap-2">
+                     API Key
+                     {platform === "Telegram" && (
+                       <Tooltip content="User must have started chatting with the telegram bot to start receiving message">
+                         <Info size={16} className="text-gray-400" />
+                       </Tooltip>
+                     )}
+                   </div>
+                   <TextArea
+                     placeholder={placeholder}
+                     onChange={(val) => {
+                       apiKeys.current = val.target.value;
+                     }}
+                   />
+                 </label>
               </Flex>
 
               <Flex gap="3" mt="4" justify="end">
