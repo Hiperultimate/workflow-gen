@@ -74,7 +74,7 @@ authRoutes.post("/signin", async (req, res) => {
   const auth_token = jwt.sign(checkUserRecord, env.JWT_KEY, {
     expiresIn: expireTime,
   });
-  res.cookie("auth_token", auth_token, { httpOnly: false, maxAge: expireTime });
+  res.cookie("auth_token", auth_token, { httpOnly: false, maxAge: expireTime * 1000 });
   return res.status(200).json({ message: "Signed in succesfully" });
 });
 
