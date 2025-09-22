@@ -11,8 +11,6 @@ export function isValidObject(input: string):
   try {
     const parsed = JSON.parse(input);
 
-    console.log("Checking input :", input);
-
     return { success: true, data: parsed };
   } catch (error) {
     return { success: false, data: null };

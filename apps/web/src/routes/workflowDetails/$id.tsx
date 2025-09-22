@@ -38,16 +38,17 @@ function RouteComponent() {
     queryFn: async () => getWorkflowById(id),
   });
 
-  // TODO : get url from env file
   useEffect(() => {
     if (!isSuccess) return;
-    const eventSource = new EventSource(
-      `http://localhost:3000/node-updates/${id}`
-    );
+
+    const baseUrl = import.meta.env.VITE_SERVER_URL;
+    const eventSource = new EventSource(`${baseUrl}/node-updates/${id}`);
+
     setEventSource(eventSource);
-    console.log("Event source set successfully...", id);
+    console.log("Event source connected:", id);
 
     return () => { 
+      // Event source disconnect logic is handled by zustand store
       setEventSource(null);
     }
   }, [data, isSuccess]);
