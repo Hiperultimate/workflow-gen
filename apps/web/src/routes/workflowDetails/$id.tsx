@@ -1,20 +1,27 @@
-import { getWorkflowById } from '@/api/getWorkflowById';
-import Flow from '@/components/customize-workflow';
-import NotFound from '@/components/page-not-found';
-import { SideNav } from '@/components/side-nav'
-import { useUserSession } from '@/store/user';
-import type { IGetSingleWorkflow } from '@/types';
-import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { getWorkflowById } from "@/api/getWorkflowById";
+import Flow from "@/components/customize-workflow";
+import NotFound from "@/components/page-not-found";
+import { SideNav } from "@/components/side-nav";
+import { useEventSource } from "@/store/nodeEvents";
+import { useUserSession } from "@/store/user";
+import type { IGetSingleWorkflow } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import {
+  createFileRoute,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
+import { useEffect } from "react";
 
-export const Route = createFileRoute('/workflowDetails/$id')({
+export const Route = createFileRoute("/workflowDetails/$id")({
   component: RouteComponent,
-  notFoundComponent: NotFound
-})
+  notFoundComponent: NotFound,
+});
 
 function RouteComponent() {
   const navigate = useNavigate();
   const user = useUserSession((s) => s.user);
+  const setEventSource = useEventSource((s) => s.updateEventSource);
   const { id } = useParams({ strict: false });
 
   if (!id) {
@@ -26,16 +33,35 @@ function RouteComponent() {
     return <></>;
   }
 
-  const { data, isLoading, isError } = useQuery<IGetSingleWorkflow>({
+  const { data, isLoading, isError, isSuccess } = useQuery<IGetSingleWorkflow>({
     queryKey: ["workflow", id],
     queryFn: async () => getWorkflowById(id),
   });
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    const baseUrl = import.meta.env.VITE_SERVER_URL;
+    const eventSource = new EventSource(`${baseUrl}/node-updates/${id}`);
+
+    setEventSource(eventSource);
+    console.log("Event source connected:", id);
+
+    return () => { 
+      // Event source disconnect logic is handled by zustand store
+      setEventSource(null);
+    }
+  }, [data, isSuccess]);
 
   return (
     <div className="flex ">
       <SideNav />
 
-      {isLoading && <div className="font-bold bg-highlighted flex items-center justify-center w-full">Loading...</div>}
+      {isLoading && (
+        <div className="font-bold bg-highlighted flex items-center justify-center w-full">
+          Loading...
+        </div>
+      )}
       {data && <Flow workflowData={data} />}
     </div>
   );

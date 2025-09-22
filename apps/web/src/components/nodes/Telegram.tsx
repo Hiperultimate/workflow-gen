@@ -6,6 +6,8 @@ import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+import StateIcon from "../ui/state-icon";
+import useNodeStates from "@/hooks/useNodeStates";
 
 function TelegramNode({
   id,
@@ -17,7 +19,9 @@ function TelegramNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-}) {
+  }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
+  
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
   const { getSourceNodesData } = useConnectedNodesData();
@@ -31,9 +35,8 @@ function TelegramNode({
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(selectedCred.current);
-  const [chatIdInput, setChatIdInput] = useState(chatId.current);
-  const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
-
+   const [chatIdInput, setChatIdInput] = useState(chatId.current);
+   const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
 
   const editTelegramNodeHandler = useCallback(() => {
     chatId.current = chatIdInput;
@@ -153,14 +156,17 @@ function TelegramNode({
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-        <Trash2
-          size={15}
-          color="#f96d5c"
-          onClick={() => deleteTelegramNodeHandler(id)}
-        />
-      </div>
-    </NodeWrapper>
+       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+         <Trash2
+           size={15}
+           color="#f96d5c"
+           onClick={() => deleteTelegramNodeHandler(id)}
+         />
+       </div>
+       <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+         <StateIcon state={nodeState} />
+       </div>
+     </NodeWrapper>
   );
 }
 

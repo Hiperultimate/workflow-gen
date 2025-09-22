@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import credentialRoutes from "./routers/credentialRoutes";
 import workflowRoutes from "./routers/workflowRoutes";
 import webhookRoutes from "./routers/webhookRoutes";
+import { clients } from "./store";
 
 const app = express();
 
@@ -30,6 +31,24 @@ app.get("/health-check", (_req, res) => {
 });
 
 app.use("/webhook", webhookRoutes);
+
+app.get('/node-updates/:workflowId', (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const { workflowId } = req.params;
+
+  clients.set(workflowId, res);
+
+  console.log("Client connected on :", workflowId);
+
+  req.on("close", () => {
+    console.log("Client disconnected :", workflowId);
+    clients.delete(workflowId);
+
+  });
+})
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

@@ -25,3 +25,13 @@ export enum NodeTypes {
 }
 
 export type NodeType = `${NodeTypes}`;
+
+export enum NodeStates {
+  InProgress = "inProgress",
+  Loading = "loading",
+  Paused = "paused",
+  Completed = "completed",
+  Failed = "failed",
+}
+
+export type NodeState = `${NodeStates}`;

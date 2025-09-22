@@ -6,6 +6,8 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+import StateIcon from "../ui/state-icon";
+import useNodeStates from "@/hooks/useNodeStates";
 
 function EmailNode({
   id,
@@ -17,7 +19,9 @@ function EmailNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-}) {
+  }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
+
   const { deleteElements } = useReactFlow();
   const { getSourceNodesData } = useConnectedNodesData();
   const { fieldData } = data;
@@ -190,7 +194,7 @@ function EmailNode({
         </Dialog.Content>
       </Dialog.Root>
 
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center items-center min-w-20">
         <Mail size={28} />
         <div className="font-bold text-md">Email</div>
         {/* <div>{item.title}</div> */}
@@ -203,6 +207,9 @@ function EmailNode({
           color="#f96d5c"
           onClick={() => deleteEmailNodeHandler(id)}
         />
+      </div>
+      <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+        <StateIcon state={nodeState} />
       </div>
     </NodeWrapper>
   );
