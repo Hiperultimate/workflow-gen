@@ -1,8 +1,14 @@
-import { NodeTypes, type IConnection, type INode } from "@/types/types";
+import {
+  NodeStates,
+  NodeTypes,
+  type IConnection,
+  type INode,
+} from "@/types/types";
 import { prisma, type Methods } from "@workflow-gen/db";
 import { Router } from "express";
 import sendTelegramMessage from "@/services/sendTelegramMessage";
 import { sendMail } from "@/services/sendMail";
+import updateNodeStateIfConnected from "@/utils/updateNodeStateIfConnected";
 
 const webhookRoutes = Router();
 
@@ -43,7 +49,11 @@ webhookRoutes.all("/:path", async (req, res) => {
     const { node: currentNode, passingData: currentNodePassingData } =
       processNodeArr[iter];
 
-    const passingData = await processNode(currentNode, currentNodePassingData); // Write code here to return processed data
+    const passingData = await processNode(
+      currentNode,
+      currentNodePassingData,
+      workflowData.id
+    ); // Write code here to return processed data
     const nextNodes = getConnectedNodesFromNode(
       currentNode.id,
       nodes,
@@ -114,7 +124,8 @@ function getSourcesOfNode(
 async function processNode(
   // nodeId: string,
   node: INode,
-  inputData: Record<any, any>
+  inputData: Record<any, any>,
+  workflowId: string
 ): Promise<{ success: boolean; passingData: any; message?: string }> {
   const nodeType = node.type;
   switch (nodeType) {
@@ -126,6 +137,12 @@ async function processNode(
     }
     case NodeTypes.Email: {
       console.log("Processing Email : ", nodeType);
+
+      updateNodeStateIfConnected({
+        workflowId: workflowId,
+        node: node,
+        nodeState: NodeStates.Loading,
+      });
 
       const emailFieldData = node.data?.fieldData;
       const subjectRaw = emailFieldData.subject;
@@ -151,10 +168,17 @@ async function processNode(
       // });
 
       if (!emailCredentials || !resendApiKey || !fromEmail) {
+        const message = "No credentials found";
+        updateNodeStateIfConnected({
+          workflowId,
+          node,
+          nodeState: NodeStates.Failed,
+          message : message
+        });
         return {
           success: false,
           passingData: {},
-          message: "No credentials found",
+          message: message,
         };
       }
 
@@ -166,9 +190,21 @@ async function processNode(
         resendApi: resendApiKey,
       });
       console.log("Checking send mail response : ", success, mailMessage);
-      if (success === false)
+      if (success === false) {
+        updateNodeStateIfConnected({
+          workflowId,
+          node,
+          nodeState: NodeStates.Failed,
+          message: mailMessage
+        });
         return { success: false, passingData: {}, message: mailMessage };
-
+      }
+      
+      updateNodeStateIfConnected({
+        workflowId,
+        node,
+        nodeState: NodeStates.Completed,
+      });
       return { success: true, passingData: {} };
     }
     case NodeTypes.Telegram: {
@@ -184,7 +220,11 @@ async function processNode(
       const finalChatMessage = interpolate(chatMessageForm || "", headerData);
 
       const telegramBotApi = telegramCredentials?.data?.botApi;
-      const response = await sendTelegramMessage({chatId: finalChatId, message: finalChatMessage, telegramApi: telegramBotApi || ''});
+      const response = await sendTelegramMessage({
+        chatId: finalChatId,
+        message: finalChatMessage,
+        telegramApi: telegramBotApi || "",
+      });
 
       return { success: response.success, passingData: {} };
     }

@@ -1,4 +1,4 @@
- import { Mail, SquarePen, Trash2 } from "lucide-react";
+import { Mail, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
@@ -8,6 +8,8 @@ import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
 import { NodeStates } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
 import StateIcon from "../ui/state-icon";
+import { useEventSource } from "@/store/nodeEvents";
+import { toast } from "sonner";
 
 function EmailNode({
   id,
@@ -20,6 +22,8 @@ function EmailNode({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
+  const nodeEvents = useEventSource((s) => s.eventSource);
+
   const { deleteElements } = useReactFlow();
   const { getSourceNodesData } = useConnectedNodesData();
   const { fieldData } = data;
@@ -85,6 +89,24 @@ function EmailNode({
   useEffect(() => {
     editEmailNodeHandler();
   }, []);
+
+  useEffect(() => {
+    if (!nodeEvents) return;
+    console.log("Node events running...");
+    nodeEvents.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received:", data);
+      const { nodeId, nodeState, message } = data;
+
+      if (id === nodeId) {
+        setNodeState(nodeState)
+      }
+
+      if (nodeState === NodeStates.Failed) {
+        toast.error(message);
+      }
+    };
+  }, [nodeEvents]);
 
   return (
     <NodeWrapper>
@@ -202,17 +224,17 @@ function EmailNode({
         <Handle type="target" position={Position.Top} />
         <Handle type="source" position={Position.Bottom} />
       </div>
-       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-         <Trash2
-           size={15}
-           color="#f96d5c"
-           onClick={() => deleteEmailNodeHandler(id)}
-         />
-       </div>
-        <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
-          <StateIcon state={nodeState} />
-        </div>
-     </NodeWrapper>
+      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+        <Trash2
+          size={15}
+          color="#f96d5c"
+          onClick={() => deleteEmailNodeHandler(id)}
+        />
+      </div>
+      <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+        <StateIcon state={nodeState} />
+      </div>
+    </NodeWrapper>
   );
 }
 
