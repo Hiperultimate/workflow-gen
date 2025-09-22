@@ -1,7 +1,7 @@
-import { SquarePen, Trash2, Webhook } from "lucide-react";
+import { Play, SquarePen, Trash2, Webhook } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
-import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
+import { Dialog, Flex, Select, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { v4 as uuid } from "uuid";
 import TagsInput from "../tag-input";
@@ -28,18 +28,20 @@ function WebhookNode({
   const title = useRef(fieldData?.title || "");
   const header = useRef(fieldData?.header || []);
   const secret = useRef(fieldData?.secret || "");
+  const runtimeData = useRef(fieldData?.runtimeData || "");
 
   const [pathInput, setPathInput] = useState(path.current);
   const [methodInput, setMethodInput] = useState(method.current);
   const [titleInput, setTitleInput] = useState(title.current);
-   const [headerInput, setHeaderInput] = useState<string[]>(header.current);
-   const [secretInput, setSecretInput] = useState(secret.current);
+  const [headerInput, setHeaderInput] = useState<string[]>(header.current);
+  const [secretInput, setSecretInput] = useState(secret.current);
+  const [runtimeDataInput, setRuntimeDataInput] = useState<string>(runtimeData.current);
 
-   // Node runtime state
-   const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
+  // Node runtime state
+  const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
 
   const editWebhookNodeHandler = useCallback(() => {
-    let checkedUrl = pathInput; 
+    let checkedUrl = pathInput;
     if (checkedUrl.trim().length === 0) {
       const newUrl = generatepath();
       setPathInput(newUrl);
@@ -50,6 +52,7 @@ function WebhookNode({
     title.current = titleInput;
     header.current = headerInput;
     secret.current = secretInput;
+    runtimeData.current = runtimeDataInput;
     data.onDataUpdate(id, {
       id: id,
       path: checkedUrl,
@@ -57,8 +60,9 @@ function WebhookNode({
       title: titleInput,
       header: headerInput,
       secret: secretInput,
+      runtimeData : runtimeDataInput
     });
-  }, [pathInput, methodInput, titleInput, headerInput, secretInput]);
+  }, [pathInput, methodInput, titleInput, headerInput, secretInput, runtimeDataInput]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -74,11 +78,18 @@ function WebhookNode({
     return resultUrl;
   }, []);
 
+  const executeWebhookHandler = useCallback(() => { 
+    console.log("Executing webhook");
+
+    // use zod validations to check if runtimeDataInput string is a valid object. If not then throw a sonner error
+    // convert object to valid url by using url constructor
+    // send axios request as a start
+  },[])
+
   if (path.current.trim().length === 0) {
     const newUrl = generatepath();
     setPathInput(newUrl);
   }
-  
 
   // Populate reactflow node object containing data with empty fields
   useEffect(() => {
@@ -118,7 +129,7 @@ function WebhookNode({
                       <Select.Item key={method} value={method}>
                         {method}
                       </Select.Item>
-                  ))}
+                    ))}
                   </Select.Group>
                 </Select.Content>
               </Select.Root>
@@ -137,7 +148,7 @@ function WebhookNode({
               </TextField.Root>
               <div className="mt-2">
                 <div className="bg-gray-800 border border-gray-300 rounded-md px-4 py-2 text-gray-300 font-mono">
-                <div className="mb-1 font-bold">URL Preview</div>
+                  <div className="mb-1 font-bold">URL Preview</div>
                   {`webhook/${pathInput}`}
                 </div>
               </div>
@@ -158,7 +169,7 @@ function WebhookNode({
 
             <label>
               <div className="mb-1 font-bold">URL Headers</div>
-              <TagsInput tags={headerInput} setTags={setHeaderInput}/>
+              <TagsInput tags={headerInput} setTags={setHeaderInput} />
             </label>
 
             <label>
@@ -172,6 +183,18 @@ function WebhookNode({
               >
                 <TextField.Slot />
               </TextField.Root>
+            </label>
+
+            <label>
+              <div className="mb-1 font-bold">Test Payload Params (Optional)</div>
+              <TextArea
+                placeholder={`{"toEmail" : "test@gmail.com"}`}
+                value={runtimeDataInput}
+                onChange={(e) => {
+                  setRuntimeDataInput(e.target.value);
+                }}
+                className="w-full p-2 border rounded-md bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </label>
           </Flex>
 
@@ -200,17 +223,23 @@ function WebhookNode({
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-         <Trash2
-           size={15}
-           color="#f96d5c"
-           onClick={() => deleteWebhookNodeHandler(id)}
-         />
-       </div>
-       <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
-         <StateIcon state={nodeState} />
-       </div>
-     </NodeWrapper>
+      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+        <Trash2
+          size={15}
+          color="#f96d5c"
+          onClick={() => deleteWebhookNodeHandler(id)}
+        />
+      </div>
+      <div
+        className="absolute top-1 left-1 bg-highlighted rounded p-0.5 hover:bg-white/20 transition-all hover:cursor-pointer"
+        onClick={executeWebhookHandler}
+      >
+        <Play size={16} />
+      </div>
+      <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+        <StateIcon state={nodeState} />
+      </div>
+    </NodeWrapper>
   );
 }
 

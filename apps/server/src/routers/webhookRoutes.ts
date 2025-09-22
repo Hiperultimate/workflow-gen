@@ -34,7 +34,7 @@ webhookRoutes.all("/:path", async (req, res) => {
   const firstNode = nodes.filter((node) => node.id === webhookId)[0];
   const passingData = getWebhookPassingData(
     firstNode,
-    Object.keys(req.body).length > 0 ? req.body : req.query
+    Object.keys(req.body || {}).length > 0 ? req.body : req.query
   );
 
   processNodeArr.push({ node: firstNode, passingData: passingData });
