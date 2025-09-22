@@ -5,6 +5,8 @@ import { Dialog, Flex, Select, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { v4 as uuid } from "uuid";
 import TagsInput from "../tag-input";
+import { NodeStates } from "@/types";
+import StateIcon from "../ui/state-icon";
 
 function WebhookNode({
   id,
@@ -30,8 +32,11 @@ function WebhookNode({
   const [pathInput, setPathInput] = useState(path.current);
   const [methodInput, setMethodInput] = useState(method.current);
   const [titleInput, setTitleInput] = useState(title.current);
-  const [headerInput, setHeaderInput] = useState<string[]>(header.current);
-  const [secretInput, setSecretInput] = useState(secret.current);
+   const [headerInput, setHeaderInput] = useState<string[]>(header.current);
+   const [secretInput, setSecretInput] = useState(secret.current);
+
+   // Node runtime state
+   const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
 
   const editWebhookNodeHandler = useCallback(() => {
     let checkedUrl = pathInput; 
@@ -195,14 +200,17 @@ function WebhookNode({
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-        <Trash2
-          size={15}
-          color="#f96d5c"
-          onClick={() => deleteWebhookNodeHandler(id)}
-        />
-      </div>
-    </NodeWrapper>
+       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+         <Trash2
+           size={15}
+           color="#f96d5c"
+           onClick={() => deleteWebhookNodeHandler(id)}
+         />
+       </div>
+       <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+         <StateIcon state={nodeState} />
+       </div>
+     </NodeWrapper>
   );
 }
 

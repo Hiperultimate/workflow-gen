@@ -6,6 +6,16 @@ export enum Platforms {
   Gemini = "Gemini",
 }
 
+export enum NodeStates {
+  InProgress = "inProgress",
+  Loading = "loading",
+  Paused = "paused",
+  Completed = "completed",
+  Failed = "failed",
+}
+
+export type NodeState = `${NodeStates}`;
+
 export type ICredentials = {
   data: string;
   title: string;

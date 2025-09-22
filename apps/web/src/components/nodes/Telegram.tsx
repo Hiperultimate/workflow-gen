@@ -5,7 +5,9 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
+import { NodeStates } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+import StateIcon from "../ui/state-icon";
 
 function TelegramNode({
   id,
@@ -31,8 +33,11 @@ function TelegramNode({
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(selectedCred.current);
-  const [chatIdInput, setChatIdInput] = useState(chatId.current);
-  const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
+   const [chatIdInput, setChatIdInput] = useState(chatId.current);
+   const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
+
+   // Node runtime state
+   const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
 
 
   const editTelegramNodeHandler = useCallback(() => {
@@ -153,14 +158,17 @@ function TelegramNode({
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-        <Trash2
-          size={15}
-          color="#f96d5c"
-          onClick={() => deleteTelegramNodeHandler(id)}
-        />
-      </div>
-    </NodeWrapper>
+       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+         <Trash2
+           size={15}
+           color="#f96d5c"
+           onClick={() => deleteTelegramNodeHandler(id)}
+         />
+       </div>
+       <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+         <StateIcon state={nodeState} />
+       </div>
+     </NodeWrapper>
   );
 }
 

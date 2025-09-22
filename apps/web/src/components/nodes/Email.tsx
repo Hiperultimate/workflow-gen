@@ -1,11 +1,13 @@
-import { Mail, SquarePen, Trash2 } from "lucide-react";
+ import { Mail, SquarePen, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import NodeWrapper from "./NodeWrapper";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
+import { NodeStates } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+import StateIcon from "../ui/state-icon";
 
 function EmailNode({
   id,
@@ -38,6 +40,9 @@ function EmailNode({
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
   const [htmlMailInput, setHtmlMailInput] = useState(htmlMail.current);
+
+  // Node runtime state
+  const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
 
   const editEmailNodeHandler = useCallback(() => {
     selectedCred.current = selectedCredential;
@@ -190,21 +195,24 @@ function EmailNode({
         </Dialog.Content>
       </Dialog.Root>
 
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center items-center min-w-20">
         <Mail size={28} />
         <div className="font-bold text-md">Email</div>
         {/* <div>{item.title}</div> */}
         <Handle type="target" position={Position.Top} />
         <Handle type="source" position={Position.Bottom} />
       </div>
-      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-        <Trash2
-          size={15}
-          color="#f96d5c"
-          onClick={() => deleteEmailNodeHandler(id)}
-        />
-      </div>
-    </NodeWrapper>
+       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+         <Trash2
+           size={15}
+           color="#f96d5c"
+           onClick={() => deleteEmailNodeHandler(id)}
+         />
+       </div>
+        <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+          <StateIcon state={nodeState} />
+        </div>
+     </NodeWrapper>
   );
 }
 
