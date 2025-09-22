@@ -7,6 +7,9 @@ import { v4 as uuid } from "uuid";
 import TagsInput from "../tag-input";
 import { NodeStates } from "@/types";
 import StateIcon from "../ui/state-icon";
+import { isValidObject } from "@/lib/schema";
+import { toast } from "sonner";
+import axios from "axios";
 
 function WebhookNode({
   id,
@@ -78,13 +81,32 @@ function WebhookNode({
     return resultUrl;
   }, []);
 
-  const executeWebhookHandler = useCallback(() => { 
+  const executeWebhookHandler = useCallback( async () => { 
     console.log("Executing webhook");
 
-    // use zod validations to check if runtimeDataInput string is a valid object. If not then throw a sonner error
-    // convert object to valid url by using url constructor
-    // send axios request as a start
-  },[])
+    // save workflow --- TODO
+
+    const isObject = isValidObject(runtimeDataInput);
+    if (isObject.success === false) {
+      toast.error("Test Payload provided is not a valid object")
+      return;
+    }
+    
+    const paramData = isObject.data;
+
+    const url = new URL(`http://localhost:3000/webhook/${path.current}`);
+    Object.entries(paramData).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    await axios.request({
+      method: method.current,
+      url: url.toString(),
+    })
+
+    console.log("Reaching");
+
+  },[runtimeDataInput])
 
   if (path.current.trim().length === 0) {
     const newUrl = generatepath();
