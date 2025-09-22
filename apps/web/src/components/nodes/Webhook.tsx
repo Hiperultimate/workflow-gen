@@ -5,11 +5,11 @@ import { Dialog, Flex, Select, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { v4 as uuid } from "uuid";
 import TagsInput from "../tag-input";
-import { NodeStates } from "@/types";
 import StateIcon from "../ui/state-icon";
 import { isValidObject } from "@/lib/schema";
 import { toast } from "sonner";
 import axios from "axios";
+import useNodeStates from "@/hooks/useNodeStates";
 
 function WebhookNode({
   id,
@@ -21,7 +21,9 @@ function WebhookNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-}) {
+  }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
+
   const { deleteElements } = useReactFlow();
 
   const { fieldData } = data;
@@ -38,10 +40,9 @@ function WebhookNode({
   const [titleInput, setTitleInput] = useState(title.current);
   const [headerInput, setHeaderInput] = useState<string[]>(header.current);
   const [secretInput, setSecretInput] = useState(secret.current);
-  const [runtimeDataInput, setRuntimeDataInput] = useState<string>(runtimeData.current);
-
-  // Node runtime state
-  const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
+  const [runtimeDataInput, setRuntimeDataInput] = useState<string>(
+    runtimeData.current
+  );
 
   const editWebhookNodeHandler = useCallback(() => {
     let checkedUrl = pathInput;
@@ -63,9 +64,16 @@ function WebhookNode({
       title: titleInput,
       header: headerInput,
       secret: secretInput,
-      runtimeData : runtimeDataInput
+      runtimeData: runtimeDataInput,
     });
-  }, [pathInput, methodInput, titleInput, headerInput, secretInput, runtimeDataInput]);
+  }, [
+    pathInput,
+    methodInput,
+    titleInput,
+    headerInput,
+    secretInput,
+    runtimeDataInput,
+  ]);
 
   const deleteWebhookNodeHandler = useCallback(
     (nodeId: string) => {
@@ -81,17 +89,17 @@ function WebhookNode({
     return resultUrl;
   }, []);
 
-  const executeWebhookHandler = useCallback( async () => { 
+  const executeWebhookHandler = useCallback(async () => {
     console.log("Executing webhook");
 
     // save workflow --- TODO
 
     const isObject = isValidObject(runtimeDataInput);
     if (isObject.success === false) {
-      toast.error("Test Payload provided is not a valid object")
+      toast.error("Test Payload provided is not a valid object");
       return;
     }
-    
+
     const paramData = isObject.data;
 
     const url = new URL(`http://localhost:3000/webhook/${path.current}`);
@@ -102,11 +110,10 @@ function WebhookNode({
     await axios.request({
       method: method.current,
       url: url.toString(),
-    })
+    });
 
     console.log("Reaching");
-
-  },[runtimeDataInput])
+  }, [runtimeDataInput]);
 
   if (path.current.trim().length === 0) {
     const newUrl = generatepath();
@@ -208,7 +215,9 @@ function WebhookNode({
             </label>
 
             <label>
-              <div className="mb-1 font-bold">Test Payload Params (Optional)</div>
+              <div className="mb-1 font-bold">
+                Test Payload Params (Optional)
+              </div>
               <TextArea
                 placeholder={`{"toEmail" : "test@gmail.com"}`}
                 value={runtimeDataInput}

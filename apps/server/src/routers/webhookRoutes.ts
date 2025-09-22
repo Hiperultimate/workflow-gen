@@ -44,6 +44,14 @@ webhookRoutes.all("/:path", async (req, res) => {
   );
 
   processNodeArr.push({ node: firstNode, passingData: passingData });
+
+  updateNodeStateIfConnected({
+    workflowId: workflowData.id,
+    node: firstNode,
+    nodeState: NodeStates.InProgress,
+  });
+
+
   let iter = 0;
   while (iter < processNodeArr.length) {
     const { node: currentNode, passingData: currentNodePassingData } =
@@ -62,6 +70,13 @@ webhookRoutes.all("/:path", async (req, res) => {
 
     nextNodes.forEach((node) => {
       processNodeArr.push({ node: node, passingData: passingData });
+      
+      // Changing live states to InProgress if required
+      updateNodeStateIfConnected({
+        workflowId: workflowData.id,
+        node: node,
+        nodeState: NodeStates.InProgress,
+      });
     });
     iter++;
   }
@@ -131,8 +146,19 @@ async function processNode(
   switch (nodeType) {
     case NodeTypes.Webhook: {
       console.log("Processing Webhook : ", nodeType);
+      updateNodeStateIfConnected({
+        workflowId: workflowId,
+        node: node,
+        nodeState: NodeStates.Loading,
+      });
 
       const webhookData = getWebhookPassingData(node, inputData.header);
+
+      updateNodeStateIfConnected({
+        workflowId: workflowId,
+        node: node,
+        nodeState: NodeStates.Completed,
+      });
       return { success: true, passingData: webhookData };
     }
     case NodeTypes.Email: {
@@ -173,7 +199,7 @@ async function processNode(
           workflowId,
           node,
           nodeState: NodeStates.Failed,
-          message : message
+          message: message,
         });
         return {
           success: false,
@@ -195,11 +221,11 @@ async function processNode(
           workflowId,
           node,
           nodeState: NodeStates.Failed,
-          message: mailMessage
+          message: mailMessage,
         });
         return { success: false, passingData: {}, message: mailMessage };
       }
-      
+
       updateNodeStateIfConnected({
         workflowId,
         node,
@@ -209,6 +235,12 @@ async function processNode(
     }
     case NodeTypes.Telegram: {
       console.log("Processing Telegram");
+
+      updateNodeStateIfConnected({
+        workflowId,
+        node,
+        nodeState: NodeStates.Loading,
+      });
 
       const fieldData = node.data?.fieldData;
       const chatIdForm = fieldData.chatId;
@@ -225,6 +257,22 @@ async function processNode(
         message: finalChatMessage,
         telegramApi: telegramBotApi || "",
       });
+
+      if (response.success === false) {
+        updateNodeStateIfConnected({
+          workflowId,
+          node,
+          nodeState: NodeStates.Failed,
+          message :response.message
+        });
+      } else {
+        updateNodeStateIfConnected({
+          workflowId,
+          node,
+          nodeState: NodeStates.Completed,
+        });
+      }
+
 
       return { success: response.success, passingData: {} };
     }

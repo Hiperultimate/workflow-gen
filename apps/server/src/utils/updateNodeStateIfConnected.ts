@@ -4,7 +4,7 @@ import type { INode, NodeState } from "@/types/types";
 function updateNodeStateIfConnected({
   workflowId,
   node,
-nodeState,
+  nodeState,
   message,
 }: {
   workflowId: string;

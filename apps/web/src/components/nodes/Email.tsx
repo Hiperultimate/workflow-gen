@@ -5,11 +5,9 @@ import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
-import { NodeStates } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
 import StateIcon from "../ui/state-icon";
-import { useEventSource } from "@/store/nodeEvents";
-import { toast } from "sonner";
+import useNodeStates from "@/hooks/useNodeStates";
 
 function EmailNode({
   id,
@@ -21,8 +19,8 @@ function EmailNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-}) {
-  const nodeEvents = useEventSource((s) => s.eventSource);
+  }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
 
   const { deleteElements } = useReactFlow();
   const { getSourceNodesData } = useConnectedNodesData();
@@ -44,9 +42,6 @@ function EmailNode({
   const [toEmailInput, setToEmailInput] = useState(toEmail.current);
   const [subjectInput, setSubjectInput] = useState(subject.current);
   const [htmlMailInput, setHtmlMailInput] = useState(htmlMail.current);
-
-  // Node runtime state
-  const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
 
   const editEmailNodeHandler = useCallback(() => {
     selectedCred.current = selectedCredential;
@@ -89,24 +84,6 @@ function EmailNode({
   useEffect(() => {
     editEmailNodeHandler();
   }, []);
-
-  useEffect(() => {
-    if (!nodeEvents) return;
-    console.log("Node events running...");
-    nodeEvents.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("Received:", data);
-      const { nodeId, nodeState, message } = data;
-
-      if (id === nodeId) {
-        setNodeState(nodeState)
-      }
-
-      if (nodeState === NodeStates.Failed) {
-        toast.error(message);
-      }
-    };
-  }, [nodeEvents]);
 
   return (
     <NodeWrapper>

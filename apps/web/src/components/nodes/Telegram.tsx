@@ -5,9 +5,9 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Dialog, Flex, TextArea, TextField } from "@radix-ui/themes";
 import SelectCredential from "../select-credential";
 import type { ICredentials, NodeWithOptionalFieldData } from "@/types";
-import { NodeStates } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
 import StateIcon from "../ui/state-icon";
+import useNodeStates from "@/hooks/useNodeStates";
 
 function TelegramNode({
   id,
@@ -19,7 +19,9 @@ function TelegramNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-}) {
+  }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
+  
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
   const { getSourceNodesData } = useConnectedNodesData();
@@ -35,10 +37,6 @@ function TelegramNode({
     useState<ICredentials | null>(selectedCred.current);
    const [chatIdInput, setChatIdInput] = useState(chatId.current);
    const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
-
-   // Node runtime state
-   const [nodeState, setNodeState] = useState<NodeStates>(NodeStates.Paused);
-
 
   const editTelegramNodeHandler = useCallback(() => {
     chatId.current = chatIdInput;

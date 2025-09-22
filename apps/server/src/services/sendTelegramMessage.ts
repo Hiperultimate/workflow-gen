@@ -8,7 +8,7 @@ async function sendTelegramMessage({
   chatId: string;
   message: string;
   telegramApi: string;
-}) {
+}): Promise<{ success: boolean; message: string }> {
   try {
     const token = telegramApi;
     if (!token) {
