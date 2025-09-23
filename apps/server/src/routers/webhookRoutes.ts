@@ -51,7 +51,6 @@ webhookRoutes.all("/:path", async (req, res) => {
     nodeState: NodeStates.InProgress,
   });
 
-
   let iter = 0;
   while (iter < processNodeArr.length) {
     const { node: currentNode, passingData: currentNodePassingData } =
@@ -70,7 +69,7 @@ webhookRoutes.all("/:path", async (req, res) => {
 
     nextNodes.forEach((node) => {
       processNodeArr.push({ node: node, passingData: passingData });
-      
+
       // Changing live states to InProgress if required
       updateNodeStateIfConnected({
         workflowId: workflowData.id,
@@ -177,9 +176,14 @@ async function processNode(
       const emailCredentials = emailFieldData?.selectedCred;
       const headerData = inputData?.passingData?.header;
 
-      const subject = interpolate(subjectRaw || "", headerData);
-      const toEmail = interpolate(toEmailRaw || "", headerData);
-      const htmlMail = interpolate(htmlMailRaw || "", headerData);
+      const headerAndPrevData = {
+        ...emailFieldData.previousNodesData,
+        ...headerData,
+      };
+
+      const subject = interpolate(subjectRaw || "", headerAndPrevData);
+      const toEmail = interpolate(toEmailRaw || "", headerAndPrevData);
+      const htmlMail = interpolate(htmlMailRaw || "", headerAndPrevData);
       const fromEmail = emailCredentials?.data?.email;
       const resendApiKey = emailCredentials?.data?.api;
 
@@ -263,7 +267,7 @@ async function processNode(
           workflowId,
           node,
           nodeState: NodeStates.Failed,
-          message :response.message
+          message: response.message,
         });
       } else {
         updateNodeStateIfConnected({
@@ -272,7 +276,6 @@ async function processNode(
           nodeState: NodeStates.Completed,
         });
       }
-
 
       return { success: response.success, passingData: {} };
     }

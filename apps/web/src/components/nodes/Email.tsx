@@ -19,11 +19,14 @@ function EmailNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-  }) {
+}) {
   const { nodeState } = useNodeStates({ watchNodeId: data.id });
 
   const { deleteElements } = useReactFlow();
-  const { getSourceNodesData } = useConnectedNodesData();
+  const { getSourceNodesData, getPreviousNodesData } = useConnectedNodesData();
+  const { nodeData: previousNodesData, nodeDataKeys } =
+    getPreviousNodesData(id);
+
   const { fieldData } = data;
 
   const parentNodeData = getSourceNodesData(id) as NodeWithOptionalFieldData[];
@@ -50,12 +53,18 @@ function EmailNode({
     subject.current = subjectInput;
     htmlMail.current = htmlMailInput;
 
-    data.onDataUpdate(id, {
+    const currentNodeData = {
       selectedCred: selectedCred.current,
       // fromEmail: fromEmail.current,
       toEmail: toEmail.current,
       subject: subject.current,
       htmlMail: htmlMail.current,
+    };
+
+    const { previousNodesData: _omit, ...cleanPreviousNodesData } = previousNodesData || {};
+    data.onDataUpdate(id, {
+      ...currentNodeData,
+      previousNodesData: { ...cleanPreviousNodesData, ...currentNodeData },
     });
   }, [
     selectedCredential,
@@ -126,6 +135,9 @@ function EmailNode({
                 <div className="mb-1 font-bold">Input Data Preview</div>
                 {parentNodeData && (
                   <div>
+                    {nodeDataKeys.map((key, idx) => {
+                      return <span key={idx}>{`{{${key}}} `}</span>;
+                    })}
                     {parentNodeData
                       .map((node) => node.fieldData?.header ?? []) // safe: if fieldData or header missing, use empty array
                       .flat()

@@ -19,12 +19,15 @@ function TelegramNode({
     fieldData: any;
     onDataUpdate: (id: string, data: any) => void;
   };
-  }) {
+}) {
   const { nodeState } = useNodeStates({ watchNodeId: data.id });
-  
+
   const { deleteElements } = useReactFlow();
+  const { getSourceNodesData, getPreviousNodesData } = useConnectedNodesData();
+  const { nodeData: previousNodesData, nodeDataKeys } =
+    getPreviousNodesData(id);
+
   const { fieldData } = data;
-  const { getSourceNodesData } = useConnectedNodesData();
 
   const selectedCred = useRef<ICredentials | null>(
     fieldData?.selectedCred || null
@@ -35,17 +38,22 @@ function TelegramNode({
 
   const [selectedCredential, setSelectedCredential] =
     useState<ICredentials | null>(selectedCred.current);
-   const [chatIdInput, setChatIdInput] = useState(chatId.current);
-   const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
+  const [chatIdInput, setChatIdInput] = useState(chatId.current);
+  const [chatMessageInput, setChatMessageInput] = useState(chatMessage.current);
 
   const editTelegramNodeHandler = useCallback(() => {
     chatId.current = chatIdInput;
     selectedCred.current = selectedCredential;
     chatMessage.current = chatMessageInput;
-    data.onDataUpdate(id, {
+    const currentNodeData = {
       selectedCred: selectedCred.current,
       chatId: chatId.current,
       chatMessage: chatMessage.current,
+    };
+    const { previousNodesData: _omit, ...cleanPreviousNodesData } = previousNodesData || {};
+    data.onDataUpdate(id, {
+      ...currentNodeData,
+      previousNodesData: { ...cleanPreviousNodesData, ...currentNodeData },
     });
   }, [chatIdInput, selectedCredential, chatMessageInput, data.onDataUpdate]);
 
@@ -86,6 +94,9 @@ function TelegramNode({
             <div className="mb-1 font-bold">Input Data Preview</div>
             {parentNodeData && (
               <div>
+                {nodeDataKeys.map((key, idx) => {
+                  return <span key={idx}>{`{{${key}}} `}</span>;
+                })}
                 {parentNodeData
                   .map((node) => node.fieldData?.header ?? []) // safe: if fieldData or header missing, use empty array
                   .flat()
@@ -128,7 +139,6 @@ function TelegramNode({
                 className="w-full p-2 border rounded-md bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </label>
-
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
@@ -156,17 +166,17 @@ function TelegramNode({
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-       <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
-         <Trash2
-           size={15}
-           color="#f96d5c"
-           onClick={() => deleteTelegramNodeHandler(id)}
-         />
-       </div>
-       <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
-         <StateIcon state={nodeState} />
-       </div>
-     </NodeWrapper>
+      <div className="absolute top-1/2 -right-7 -translate-y-1/2 hover:cursor-pointer bg-highlighted p-1 rounded-md hover:bg-white/30">
+        <Trash2
+          size={15}
+          color="#f96d5c"
+          onClick={() => deleteTelegramNodeHandler(id)}
+        />
+      </div>
+      <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+        <StateIcon state={nodeState} />
+      </div>
+    </NodeWrapper>
   );
 }
 
