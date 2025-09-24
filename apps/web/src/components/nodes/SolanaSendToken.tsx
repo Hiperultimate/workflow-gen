@@ -5,6 +5,8 @@ import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Dialog, Flex, TextField } from "@radix-ui/themes";
 import type { NodeWithOptionalFieldData } from "@/types";
 import useConnectedNodesData from "@/hooks/useConnectedNodesData";
+import useNodeStates from "@/hooks/useNodeStates";
+import StateIcon from "../ui/state-icon";
 
 function SolanaSendTokenNode({
   id,
@@ -17,6 +19,8 @@ function SolanaSendTokenNode({
     onDataUpdate: (id: string, data: any) => void;
   };
 }) {
+  const { nodeState } = useNodeStates({ watchNodeId: data.id });
+
   const { deleteElements } = useReactFlow();
   const { fieldData } = data;
 
@@ -196,6 +200,10 @@ function SolanaSendTokenNode({
           color="#f96d5c"
           onClick={() => deleteSolanaSendTokenNodeHandler(id)}
         />
+      </div>
+
+      <div className="absolute top-1 right-1 bg-highlighted rounded p-0.5">
+        <StateIcon state={nodeState} />
       </div>
     </NodeWrapper>
   );
