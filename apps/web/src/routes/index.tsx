@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
-  redirect,
   useNavigate,
 } from "@tanstack/react-router";
 import { Label } from "radix-ui";

@@ -17,6 +17,7 @@ function AddNode({ onSelect }: AddNodeProps) {
     { value: "geminiModelNode", label: "Gemini Model Node", id: "5" },
     { value: "codeToolNode", label: "Code Tool Node", id: "6" },
     { value: "manualTriggerNode", label: "Manual Trigger Node", id: "7" },
+    { value: "solanaSendTokenNode", label: "Send Solana Node", id: "8" },
   ];
 
   // Filter nodes based on input

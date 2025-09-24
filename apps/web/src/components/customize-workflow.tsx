@@ -34,6 +34,7 @@ import AiAgent from "./nodes/AiAgent";
 import GeminiNode from "./nodes/Gemini";
 import CodeToolNode from "./nodes/CodeTool";
 import ManualTrigger from "./nodes/ManualTrigger";
+import SolanaSendTokenNode from "./nodes/SolanaSendToken";
 
 const nodeTypes = {
   telegramNode: TelegramNode,
@@ -42,7 +43,8 @@ const nodeTypes = {
   aiAgent: AiAgent,
   geminiModelNode: GeminiNode,
   codeToolNode : CodeToolNode,
-  manualTriggerNode: ManualTrigger
+  manualTriggerNode: ManualTrigger,
+  solanaSendTokenNode : SolanaSendTokenNode,
 };
 
 const edgeTypes = {

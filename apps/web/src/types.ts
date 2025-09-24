@@ -46,7 +46,8 @@ export enum NodeTypes {
   AiAgent = "aiAgent",
   GeminiModel = "geminiModelNode",
   CodeTool = "codeToolNode",
-  ManualTriggerNode = "manualTriggerNode"
+  ManualTriggerNode = "manualTriggerNode",
+  SolanaSendTokenNode = "solanaSendTokenNode"
 }
 
 export type NodeType = `${NodeTypes}`;
