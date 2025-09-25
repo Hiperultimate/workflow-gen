@@ -22,6 +22,7 @@ export enum NodeTypes {
   GeminiModel = "geminiModelNode",
   CodeTool = "codeToolNode",
   ManualTriggerNode = "manualTriggerNode",
+  SolanaSendTokenNode = "solanaSendTokenNode"
 }
 
 export type NodeType = `${NodeTypes}`;
