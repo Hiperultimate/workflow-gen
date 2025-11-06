@@ -115,7 +115,7 @@ function RouteComponent() {
                        if (val === "Telegram") {
                          setPlaceholder('{"botApi":"apiKey"}');
                        } else if (val === "Email") {
-                         setPlaceholder('{"api":"apiString"}');
+                         setPlaceholder('{"api":"apiString", "email":"yourEmail@mail.com"}');
                        } else {
                          setPlaceholder("{json:data}");
                        }
